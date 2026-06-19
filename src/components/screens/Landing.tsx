@@ -140,38 +140,42 @@ export default function Landing({ go, connectWallet }: Props) {
         <div className="relative max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-[1fr_600px] items-center gap-10 px-5 md:px-12 pt-12 md:pt-24 pb-10 md:pb-20">
           {/* text */}
           <div>
-            <div className="inline-flex items-center gap-2 mb-6 md:mb-9"
+            <Reveal delay={0} y={14} className="inline-flex items-center gap-2 mb-6 md:mb-9"
               style={{ border: '1px solid #242424', padding: '6px 12px', borderRadius: 2 }}
             >
               <span style={{ width: 5, height: 5, background: '#14B88A', display: 'inline-block' }} />
               <span style={{ fontFamily: MONO, fontSize: 11, color: '#8A8A8A', letterSpacing: '.14em', textTransform: 'uppercase' }}>
                 Trustless proof-of-exploit · Stellar
               </span>
-            </div>
-            <h1
-              className="text-[48px] md:text-[84px] mb-5 md:mb-7"
-              style={{ fontFamily: SERIF, fontWeight: 400, lineHeight: .98, letterSpacing: '-.01em', color: '#EDEDED', margin: 0 }}
-            >
-              Prove the exploit.<br />Reveal nothing.
-            </h1>
-            <p
-              className="text-[15px] md:text-[17px] mb-7 md:mb-10"
-              style={{ lineHeight: 1.6, color: '#8A8A8A', maxWidth: 480, fontFamily: SANS, margin: 0 }}
-            >
-              Hunters prove they broke your contract without leaking how. The contract verifies the zero-knowledge proof on-chain and pays out automatically.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-[14px]">
+            </Reveal>
+            <Reveal delay={80} y={16}>
+              <h1
+                className="text-[48px] md:text-[84px] mb-5 md:mb-7"
+                style={{ fontFamily: SERIF, fontWeight: 400, lineHeight: .98, letterSpacing: '-.01em', color: '#EDEDED', margin: 0 }}
+              >
+                Prove the exploit.<br />Reveal nothing.
+              </h1>
+            </Reveal>
+            <Reveal delay={160} y={16}>
+              <p
+                className="text-[15px] md:text-[17px] mb-7 md:mb-10"
+                style={{ lineHeight: 1.6, color: '#8A8A8A', maxWidth: 480, fontFamily: SANS, margin: 0 }}
+              >
+                Hunters prove they broke your contract without leaking how. The contract verifies the zero-knowledge proof on-chain and pays out automatically.
+              </p>
+            </Reveal>
+            <Reveal delay={240} y={16} className="flex flex-col sm:flex-row gap-3 md:gap-[14px]">
               <button onClick={() => go('hunt')} className="vbtn"
                 style={{ background: '#EDEDED', color: '#0A0A0A', border: 'none', padding: '14px 24px', fontFamily: SANS, fontWeight: 600, fontSize: 14, borderRadius: 2, cursor: 'pointer' }}
               >Explore bounties</button>
               <button onClick={() => scrollTo('howitworks')} className="vbtn vbtn-ghost"
                 style={{ background: 'transparent', color: '#EDEDED', border: '1px solid #333', padding: '14px 24px', fontFamily: SANS, fontWeight: 500, fontSize: 14, borderRadius: 2, cursor: 'pointer' }}
               >How it works</button>
-            </div>
+            </Reveal>
           </div>
 
           {/* diamond — desktop only (no inline display, controlled by Tailwind) */}
-          <div className="hidden md:flex relative items-center justify-center"
+          <Reveal delay={120} y={20} className="hidden md:flex relative items-center justify-center"
             style={{ width: 600, height: 560 }}
           >
             <div style={{ position: 'absolute', top: 0, left: 0, fontFamily: MONO, fontSize: 10, color: '#5A5A5A', letterSpacing: '.14em' }}>ENCRYPTED · ZK-RECEIPT</div>
@@ -181,18 +185,18 @@ export default function Landing({ go, connectWallet }: Props) {
             <div style={{ position: 'absolute', bottom: 0, right: 0, width: 14, height: 14, borderRight: '1px solid #333', borderBottom: '1px solid #333' }} />
             <CanvasDiamond width={540} height={540} />
             <div style={{ position: 'absolute', bottom: 0, right: 0, fontFamily: MONO, fontSize: 10, color: '#5A5A5A', letterSpacing: '.14em' }}>SEAL VALID ✓</div>
-          </div>
+          </Reveal>
         </div>
 
         {/* diamond — mobile only */}
-        <div className="flex md:hidden justify-center relative px-5 pb-10">
+        <Reveal y={20} className="flex md:hidden justify-center relative px-5 pb-10">
           <div style={{ position: 'absolute', top: 8, left: 20, fontFamily: MONO, fontSize: 9, color: '#5A5A5A', letterSpacing: '.12em' }}>ENCRYPTED · ZK-RECEIPT</div>
           <CanvasDiamond width={300} height={300} />
-        </div>
+        </Reveal>
       </div>
 
       {/* ─── TECH BAR ─── */}
-      <div className="flex flex-wrap items-center gap-3 md:gap-[14px] px-5 md:px-12 py-[22px]"
+      <Reveal y={10} className="flex flex-wrap items-center gap-3 md:gap-[14px] px-5 md:px-12 py-[22px]"
         style={{ borderTop: '1px solid #242424' }}
       >
         <span style={{ fontFamily: MONO, fontSize: 11, color: '#5A5A5A', letterSpacing: '.14em', textTransform: 'uppercase' }}>Built on</span>
@@ -202,7 +206,7 @@ export default function Landing({ go, connectWallet }: Props) {
             {i < a.length - 1 && <span style={{ color: '#333' }}>·</span>}
           </span>
         ))}
-      </div>
+      </Reveal>
 
       {/* ─── FEATURES ─── */}
       <section id="features" style={{ scrollMarginTop: 64, borderTop: '1px solid #242424' }}>
