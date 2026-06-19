@@ -24,5 +24,63 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes veilfade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 input::placeholder { color: #5A5A5A; }
 input:focus { outline: none; }
+
+/* ── keyboard focus ring ───────────────────────────── */
+:focus-visible { outline: none; }
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid rgba(20, 184, 138, .75);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* ── buttons: lift + brighten ──────────────────────── */
+.vbtn {
+  transition: transform .15s ease, box-shadow .22s ease,
+              filter .2s ease, background .2s ease, border-color .2s ease;
+  will-change: transform;
+}
+.vbtn:hover   { transform: translateY(-1px); filter: brightness(1.08); }
+.vbtn:active  { transform: translateY(0);    filter: brightness(.95); }
+/* ghost (bordered) buttons get a teal edge on hover */
+.vbtn-ghost:hover { border-color: rgba(20, 184, 138, .55) !important; }
+
+/* ── cards: lift + edge + shadow ───────────────────── */
+.vcard {
+  transition: transform .2s ease, border-color .2s ease,
+              box-shadow .25s ease, background .2s ease;
+}
+.vcard:hover {
+  transform: translateY(-3px);
+  border-color: #2e2e2e !important;
+  box-shadow: 0 14px 36px -16px rgba(0, 0, 0, .7);
+}
+
+/* ── dim links brighten on hover ───────────────────── */
+.vlink { transition: color .18s ease, background .18s ease, border-color .18s ease; }
+.vlink:hover { color: #EDEDED !important; }
+
+/* ── inputs: teal focus border ─────────────────────── */
+.vinput { transition: border-color .18s ease, background .18s ease; }
+.vinput:focus-within,
+.vinput:focus { border-color: rgba(20, 184, 138, .5) !important; }
+
+/* ── per-screen enter animation ────────────────────── */
+/* opacity-only: a lingering transform would break sticky navs inside */
+@keyframes screenfade { from { opacity: 0; } to { opacity: 1; } }
+.screen-enter { animation: screenfade .3s ease both; }
+
+/* ── respect reduced motion ────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .vbtn, .vcard, .vlink, .vinput, .screen-enter { transition: none; animation: none; }
+  .vbtn:hover, .vcard:hover { transform: none; }
+}

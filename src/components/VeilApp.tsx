@@ -28,6 +28,16 @@ export default function VeilApp() {
     try { window.scrollTo(0, 0) } catch (_) {}
   }
 
+  const showToast = (msg: string, ms = 3200) => {
+    setS(prev => ({ ...prev, toast: msg }))
+    addTimer(setTimeout(() => setS(prev => ({ ...prev, toast: null })), ms))
+  }
+
+  const connectWallet = () => {
+    showToast('Wallet connected · GD7X…K2P9')
+    go('hunt')
+  }
+
   const openSubmit = (id: string) => {
     clearTimers()
     setS(prev => ({ ...prev, screen: 'submit', activeId: id, fileLoaded: false, fileName: '', verifyStep: 0, verified: false }))
@@ -53,6 +63,7 @@ export default function VeilApp() {
       } else {
         setS(st => ({ ...st, verified: true, claimed: { ...st.claimed, [activeId]: true } }))
         tickBalance(activeId)
+        showToast('Proof valid · reward released to your wallet', 4000)
       }
     }
 
@@ -128,9 +139,10 @@ export default function VeilApp() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0A0A0A', color: '#EDEDED', position: 'relative' }}>
-      {s.screen === 'landing'    && <Landing go={go} connectWallet={() => go('hunt')} />}
-      {s.screen === 'features'   && <Features go={go} connectWallet={() => go('hunt')} />}
-      {s.screen === 'howitworks' && <HowItWorks go={go} connectWallet={() => go('hunt')} />}
+      <div key={s.screen} className="screen-enter">
+      {s.screen === 'landing'    && <Landing go={go} connectWallet={connectWallet} />}
+      {s.screen === 'features'   && <Features go={go} connectWallet={connectWallet} />}
+      {s.screen === 'howitworks' && <HowItWorks go={go} connectWallet={connectWallet} />}
 
       {isApp && (
         <>
@@ -193,6 +205,7 @@ export default function VeilApp() {
           )}
         </>
       )}
+      </div>
 
       {s.toast && <Toast message={s.toast} />}
 

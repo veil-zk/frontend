@@ -21,7 +21,7 @@ export default function AppNav({ go, huntActive, createActive, balanceStr }: Pro
       style={{ borderBottom: '1px solid #242424', position: 'sticky', top: 0, background: '#0A0A0A', zIndex: 20 }}
     >
       <div className="flex items-center gap-5 md:gap-10">
-        <div onClick={() => go('landing')}
+        <div onClick={() => go('landing')} className="vbtn"
           style={{ fontFamily: MONO, fontWeight: 700, fontSize: 17, letterSpacing: '.34em', cursor: 'pointer', color: '#EDEDED' }}
         >
           VEIL
@@ -30,14 +30,14 @@ export default function AppNav({ go, huntActive, createActive, balanceStr }: Pro
           style={{ border: '1px solid #242424', borderRadius: 2, padding: 3 }}
         >
           <span onClick={() => go('hunt')}
-            className="text-[11px] md:text-[12px] px-3 md:px-[14px] py-[6px] md:py-[7px]"
+            className="vlink text-[11px] md:text-[12px] px-3 md:px-[14px] py-[6px] md:py-[7px]"
             style={{ fontFamily: MONO, letterSpacing: '.02em', borderRadius: 1, cursor: 'pointer', background: tabBg(huntActive), color: tabClr(huntActive) }}
           >
             <span className="hidden sm:inline">Hunt bounties</span>
             <span className="inline sm:hidden">Hunt</span>
           </span>
           <span onClick={() => go('create')}
-            className="text-[11px] md:text-[12px] px-3 md:px-[14px] py-[6px] md:py-[7px]"
+            className="vlink text-[11px] md:text-[12px] px-3 md:px-[14px] py-[6px] md:py-[7px]"
             style={{ fontFamily: MONO, letterSpacing: '.02em', borderRadius: 1, cursor: 'pointer', background: tabBg(createActive), color: tabClr(createActive) }}
           >
             <span className="hidden sm:inline">Create bounty</span>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Screen } from '@/lib/data'
 import CanvasDiamond from '../CanvasDiamond'
 import CanvasBurst from '../CanvasBurst'
@@ -36,17 +37,42 @@ interface Props {
 }
 
 export default function Landing({ go, connectWallet }: Props) {
+  const [active, setActive] = useState<'features' | 'howitworks' | ''>('')
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  // scroll-spy: highlight nav link for the section in view
+  useEffect(() => {
+    const ids = ['features', 'howitworks']
+    const els = ids.map(id => document.getElementById(id)).filter(Boolean) as HTMLElement[]
+    if (!els.length) return
+    const obs = new IntersectionObserver(
+      entries => {
+        const vis = entries.filter(e => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+        if (vis) setActive(vis.target.id as 'features' | 'howitworks')
+        else if (window.scrollY < 300) setActive('')
+      },
+      { rootMargin: '-45% 0px -45% 0px', threshold: [0, 0.25, 0.5, 1] }
+    )
+    els.forEach(el => obs.observe(el))
+    return () => obs.disconnect()
+  }, [])
+
+  const navLink = (id: string) => ({
+    color: active === id ? '#EDEDED' : '#8A8A8A',
+  })
+
   return (
     <div style={{ background: '#0A0A0A', color: '#EDEDED' }}>
 
       {/* ─── NAV ─── */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 30, background: '#0A0A0A', borderBottom: '1px solid #242424' }}
+      <div style={{ position: 'sticky', top: 0, zIndex: 30, background: 'rgba(10,10,10,.85)', backdropFilter: 'blur(8px)', borderBottom: '1px solid #242424' }}
         className="flex items-center justify-between px-5 md:px-12 py-[18px]"
       >
         {/* left: logo + links */}
         <div className="flex items-center gap-8 md:gap-12">
           <div
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="vbtn"
             style={{ fontFamily: MONO, fontWeight: 700, letterSpacing: '.34em', cursor: 'pointer', color: '#EDEDED', fontSize: 17 }}
           >
             VEIL
@@ -54,13 +80,13 @@ export default function Landing({ go, connectWallet }: Props) {
           {/* nav links — desktop only */}
           <div className="hidden md:flex gap-[30px]">
             {[
-              { label: 'Features',     fn: () => scrollTo('features') },
-              { label: 'How it works', fn: () => scrollTo('howitworks') },
-              { label: 'Bounties',     fn: () => go('hunt') },
-              { label: 'Docs',         fn: () => {} },
-            ].map(({ label, fn }) => (
-              <span key={label} onClick={fn}
-                style={{ fontFamily: MONO, fontSize: 13, color: '#8A8A8A', letterSpacing: '.02em', cursor: 'pointer' }}
+              { label: 'Features',     id: 'features',   fn: () => scrollTo('features') },
+              { label: 'How it works', id: 'howitworks', fn: () => scrollTo('howitworks') },
+              { label: 'Bounties',     id: '',           fn: () => go('hunt') },
+              { label: 'Docs',         id: '',           fn: () => {} },
+            ].map(({ label, id, fn }) => (
+              <span key={label} onClick={fn} className="vlink"
+                style={{ fontFamily: MONO, fontSize: 13, letterSpacing: '.02em', cursor: 'pointer', ...navLink(id) }}
               >{label}</span>
             ))}
           </div>
@@ -68,21 +94,38 @@ export default function Landing({ go, connectWallet }: Props) {
 
         {/* desktop: Connect wallet */}
         <button onClick={connectWallet}
-          className="hidden md:inline-flex items-center gap-2"
+          className="vbtn vbtn-ghost hidden md:inline-flex items-center gap-2"
           style={{ background: 'transparent', color: '#EDEDED', border: '1px solid #333', padding: '10px 18px', fontFamily: MONO, fontSize: 13, letterSpacing: '.02em', borderRadius: 2, cursor: 'pointer' }}
         >
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#14B88A', display: 'inline-block' }} />
           Connect wallet
         </button>
 
-        {/* mobile: Bounties shortcut */}
-        <button onClick={() => go('hunt')}
-          className="flex md:hidden"
-          style={{ background: '#EDEDED', color: '#0A0A0A', border: 'none', padding: '9px 16px', fontFamily: SANS, fontWeight: 600, fontSize: 12, borderRadius: 2, cursor: 'pointer' }}
+        {/* mobile: hamburger menu */}
+        <button onClick={() => setMenuOpen(o => !o)}
+          className="vbtn flex md:hidden items-center justify-center"
+          aria-label="Menu" aria-expanded={menuOpen}
+          style={{ background: 'transparent', color: '#EDEDED', border: '1px solid #333', width: 40, height: 38, borderRadius: 2, cursor: 'pointer', fontSize: 16 }}
         >
-          Bounties →
+          {menuOpen ? '✕' : '☰'}
         </button>
       </div>
+
+      {/* mobile menu sheet */}
+      {menuOpen && (
+        <div className="md:hidden screen-enter" style={{ position: 'sticky', top: 73, zIndex: 29, background: '#0E0E0E', borderBottom: '1px solid #242424' }}>
+          {[
+            { label: 'Features',     fn: () => { scrollTo('features'); setMenuOpen(false) } },
+            { label: 'How it works', fn: () => { scrollTo('howitworks'); setMenuOpen(false) } },
+            { label: 'Bounties',     fn: () => go('hunt') },
+            { label: 'Create bounty',fn: () => go('create') },
+          ].map(({ label, fn }) => (
+            <div key={label} onClick={fn} className="vlink px-5 py-4"
+              style={{ fontFamily: MONO, fontSize: 14, color: '#8A8A8A', borderBottom: '1px solid #1a1a1a', cursor: 'pointer' }}
+            >{label}</div>
+          ))}
+        </div>
+      )}
 
       {/* ─── HERO ─── */}
       <div style={{ position: 'relative', overflow: 'hidden' }}>
@@ -117,10 +160,10 @@ export default function Landing({ go, connectWallet }: Props) {
               Hunters prove they broke your contract without leaking how. The contract verifies the zero-knowledge proof on-chain and pays out automatically.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 md:gap-[14px]">
-              <button onClick={() => go('hunt')}
+              <button onClick={() => go('hunt')} className="vbtn"
                 style={{ background: '#EDEDED', color: '#0A0A0A', border: 'none', padding: '14px 24px', fontFamily: SANS, fontWeight: 600, fontSize: 14, borderRadius: 2, cursor: 'pointer' }}
               >Explore bounties</button>
-              <button onClick={() => scrollTo('howitworks')}
+              <button onClick={() => scrollTo('howitworks')} className="vbtn vbtn-ghost"
                 style={{ background: 'transparent', color: '#EDEDED', border: '1px solid #333', padding: '14px 24px', fontFamily: SANS, fontWeight: 500, fontSize: 14, borderRadius: 2, cursor: 'pointer' }}
               >How it works</button>
             </div>
@@ -190,7 +233,7 @@ export default function Landing({ go, connectWallet }: Props) {
         <div className="max-w-[1100px] mx-auto px-5 md:px-10 py-10 md:py-14 pb-16 md:pb-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
             {FEATURES.map((f, i) => (
-              <div key={f.title} className="flex flex-col p-6 md:p-8"
+              <div key={f.title} className="vcard flex flex-col p-6 md:p-8"
                 style={{ background: '#111111', border: '1px solid #242424', borderRadius: 12 }}
               >
                 {/* header: <> Title inline */}
@@ -416,11 +459,11 @@ export default function Landing({ go, connectWallet }: Props) {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">
             <button onClick={() => go('hunt')}
-              className="w-full sm:w-auto"
+              className="vbtn w-full sm:w-auto"
               style={{ background: '#EDEDED', color: '#0A0A0A', border: 'none', padding: '14px 36px', fontFamily: SANS, fontWeight: 600, fontSize: 15, borderRadius: 9999, cursor: 'pointer' }}
             >Explore bounties</button>
             <button onClick={() => go('create')}
-              className="w-full sm:w-auto"
+              className="vbtn vbtn-ghost w-full sm:w-auto"
               style={{ background: 'transparent', color: '#EDEDED', border: '1px solid rgba(237,237,237,.32)', padding: '14px 36px', fontFamily: SANS, fontWeight: 500, fontSize: 15, borderRadius: 9999, cursor: 'pointer' }}
             >Open a bounty</button>
           </div>
@@ -452,7 +495,7 @@ export default function Landing({ go, connectWallet }: Props) {
                   { label: 'Bounties',     fn: () => go('hunt') },
                   { label: 'Create bounty',fn: () => go('create') },
                 ].map(({ label, fn }) => (
-                  <div key={label} onClick={fn}
+                  <div key={label} onClick={fn} className="vlink w-fit"
                     style={{ fontFamily: SANS, fontSize: 13, color: '#5A5A5A', marginBottom: 12, cursor: 'pointer', lineHeight: 1 }}
                   >{label}</div>
                 ))}
@@ -462,7 +505,7 @@ export default function Landing({ go, connectWallet }: Props) {
               <div>
                 <div style={{ fontFamily: SANS, fontWeight: 600, fontSize: 13, color: '#EDEDED', marginBottom: 18 }}>Social</div>
                 {['GitHub', 'Twitter / X', 'Discord'].map(l => (
-                  <div key={l} style={{ fontFamily: SANS, fontSize: 13, color: '#5A5A5A', marginBottom: 12, cursor: 'pointer', lineHeight: 1 }}>{l}</div>
+                  <div key={l} className="vlink w-fit" style={{ fontFamily: SANS, fontSize: 13, color: '#5A5A5A', marginBottom: 12, cursor: 'pointer', lineHeight: 1 }}>{l}</div>
                 ))}
               </div>
 
@@ -470,7 +513,7 @@ export default function Landing({ go, connectWallet }: Props) {
               <div>
                 <div style={{ fontFamily: SANS, fontWeight: 600, fontSize: 13, color: '#EDEDED', marginBottom: 18 }}>Legal</div>
                 {['MIT License', 'Open source'].map(l => (
-                  <div key={l} style={{ fontFamily: SANS, fontSize: 13, color: '#5A5A5A', marginBottom: 12, cursor: 'pointer', lineHeight: 1 }}>{l}</div>
+                  <div key={l} className="vlink w-fit" style={{ fontFamily: SANS, fontSize: 13, color: '#5A5A5A', marginBottom: 12, cursor: 'pointer', lineHeight: 1 }}>{l}</div>
                 ))}
               </div>
             </div>

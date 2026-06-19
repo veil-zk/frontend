@@ -45,14 +45,14 @@ export default function Hunt({ bounties, openCount, totalPool, filter, search, o
         <div className="flex gap-2">
           {(['all', 'open', 'claimed'] as Filter[]).map(f => (
             <span key={f} onClick={() => onFilter(f)}
-              className="text-[11px] md:text-[12px] px-3 md:px-4 py-2"
+              className="vlink text-[11px] md:text-[12px] px-3 md:px-4 py-2"
               style={{ fontFamily: MONO, letterSpacing: '.02em', border: '1px solid #242424', borderRadius: 2, cursor: 'pointer', background: filterBg(f), color: filterClr(f), textTransform: 'capitalize' }}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
             </span>
           ))}
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-[280px] md:w-[300px]"
+        <div className="vinput flex items-center gap-2 w-full sm:w-[280px] md:w-[300px]"
           style={{ border: '1px solid #242424', borderRadius: 2, padding: '9px 14px' }}
         >
           <span style={{ color: '#5A5A5A', fontFamily: MONO, fontSize: 13 }}>⌕</span>
@@ -67,11 +67,22 @@ export default function Hunt({ bounties, openCount, totalPool, filter, search, o
       </div>
 
       {/* cards: desktop 3-col, mobile 1-col */}
+      {bounties.length === 0 ? (
+        <div className="flex flex-col items-center justify-center text-center"
+          style={{ border: '1px dashed #242424', borderRadius: 4, padding: '64px 20px' }}
+        >
+          <div style={{ fontSize: 26, color: '#333', marginBottom: 14 }}>⌕</div>
+          <div style={{ fontFamily: SANS, fontWeight: 600, fontSize: 16, color: '#EDEDED', marginBottom: 6 }}>No bounties found</div>
+          <p style={{ fontFamily: MONO, fontSize: 12, color: '#5A5A5A', margin: 0 }}>
+            {search.trim() ? <>Nothing matches “{search.trim()}”. Try another contract or filter.</> : 'No bounties in this filter yet.'}
+          </p>
+        </div>
+      ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
         style={{ gap: 1, background: '#242424', border: '1px solid #242424' }}
       >
         {bounties.map(b => (
-          <div key={b.id} className="p-4 md:p-6 flex flex-col" style={{ background: '#111111', minHeight: 200 }}>
+          <div key={b.id} className="vcard p-4 md:p-6 flex flex-col" style={{ background: '#111111', minHeight: 200 }}>
             <div className="flex items-start justify-between mb-4 md:mb-5">
               {b.isOpen
                 ? <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.12em', padding: '4px 9px', borderRadius: 2, background: 'rgba(20,184,138,.08)', border: '1px solid rgba(20,184,138,.35)', color: '#14B88A' }}>OPEN</span>
@@ -85,12 +96,13 @@ export default function Hunt({ bounties, openCount, totalPool, filter, search, o
               victim: {b.victim}
             </div>
             {b.isOpen
-              ? <button onClick={() => onSubmit(b.id)} style={{ width: '100%', background: 'transparent', color: '#EDEDED', border: '1px solid #333', padding: '10px', fontFamily: SANS, fontWeight: 500, fontSize: 13, borderRadius: 2, cursor: 'pointer' }}>Submit proof →</button>
+              ? <button onClick={() => onSubmit(b.id)} className="vbtn vbtn-ghost" style={{ width: '100%', background: 'transparent', color: '#EDEDED', border: '1px solid #333', padding: '10px', fontFamily: SANS, fontWeight: 500, fontSize: 13, borderRadius: 2, cursor: 'pointer' }}>Submit proof →</button>
               : <div style={{ fontFamily: MONO, fontSize: 11, color: '#5A5A5A', letterSpacing: '.04em', padding: '10px 0' }}>Claimed · proof verified</div>
             }
           </div>
         ))}
       </div>
+      )}
     </div>
   )
 }

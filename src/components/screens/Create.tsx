@@ -20,7 +20,7 @@ export default function Create({ form, go: _go, onAddrChange, onImageChange, onR
   const tokenBg  = (t: Token) => form.token === t ? '#1c1c1c' : 'transparent'
   const tokenClr = (t: Token) => form.token === t ? '#EDEDED' : '#8A8A8A'
 
-  const inputCls = "w-full"
+  const inputCls = "vinput w-full"
   const inputSty: React.CSSProperties = {
     width: '100%', background: '#0A0A0A', border: '1px solid #242424',
     color: '#EDEDED', fontFamily: MONO, fontSize: 13, padding: '13px 14px', borderRadius: 2,
@@ -59,12 +59,12 @@ export default function Create({ form, go: _go, onAddrChange, onImageChange, onR
             Reward
           </label>
           <div className="flex gap-2 md:gap-3">
-            <input value={form.reward} onChange={e => onRewardChange(e.target.value)} placeholder="500"
+            <input className="vinput" value={form.reward} onChange={e => onRewardChange(e.target.value)} placeholder="500"
               style={{ ...inputSty, flex: 1, width: 'auto' }} />
             <div className="flex" style={{ border: '1px solid #242424', borderRadius: 2, overflow: 'hidden' }}>
               {(['XLM', 'USDC'] as Token[]).map((t, i) => (
                 <span key={t} onClick={() => onToken(t)}
-                  className="text-[11px] md:text-[12px] px-3 md:px-4 py-3 cursor-pointer"
+                  className="vlink text-[11px] md:text-[12px] px-3 md:px-4 py-3 cursor-pointer"
                   style={{
                     fontFamily: MONO, background: tokenBg(t), color: tokenClr(t),
                     borderLeft: i > 0 ? '1px solid #242424' : 'none',
@@ -85,11 +85,11 @@ export default function Create({ form, go: _go, onAddrChange, onImageChange, onR
           </span>
         </div>
 
-        <button onClick={onSubmit}
+        <button onClick={onSubmit} className="vbtn"
           style={{ width: '100%', background: '#EDEDED', color: '#0A0A0A', border: 'none', padding: 16, fontFamily: SANS, fontWeight: 600, fontSize: 15, borderRadius: 2, cursor: 'pointer' }}
         >Open bounty &amp; lock reward</button>
         <div className="text-center mt-4 md:mt-5">
-          <span style={{ fontFamily: MONO, fontSize: 12, color: '#5A5A5A', cursor: 'pointer', textDecoration: 'underline' }}>
+          <span className="vlink" style={{ fontFamily: MONO, fontSize: 12, color: '#5A5A5A', cursor: 'pointer', textDecoration: 'underline' }}>
             Advanced / how guests work ↓
           </span>
         </div>

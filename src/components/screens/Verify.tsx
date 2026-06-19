@@ -102,7 +102,7 @@ export default function Verify({ bounty, steps, verified, balanceStr, backToBoun
           </div>
 
           <button onClick={backToBounties}
-            className="mt-4 md:mt-5"
+            className="vbtn vbtn-ghost mt-4 md:mt-5"
             style={{ background: 'transparent', color: '#EDEDED', border: '1px solid #333', padding: '13px 24px', fontFamily: SANS, fontWeight: 500, fontSize: 14, borderRadius: 2, cursor: 'pointer' }}
           >← Back to bounties</button>
         </div>

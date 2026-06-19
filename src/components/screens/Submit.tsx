@@ -28,7 +28,7 @@ export default function Submit({ bounty, fileLoaded, fileName, dragging, go, onP
 
   return (
     <div className="max-w-[880px] mx-auto px-5 md:px-10 pt-8 md:pt-10 pb-16 md:pb-20">
-      <div onClick={() => go('hunt')}
+      <div onClick={() => go('hunt')} className="vlink inline-block"
         style={{ fontFamily: MONO, fontSize: 12, color: '#8A8A8A', cursor: 'pointer', marginBottom: 20 }}
       >← back to bounties</div>
 
@@ -101,7 +101,7 @@ export default function Submit({ bounty, fileLoaded, fileName, dragging, go, onP
         <div className="px-5 md:px-8 py-5 md:py-8" style={{ borderBottom: '1px solid #242424' }}>
           {!fileLoaded ? (
             <div onClick={onPickFile} onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}
-              className="text-center cursor-pointer py-8 md:py-10 px-5"
+              className="vinput text-center cursor-pointer py-8 md:py-10 px-5"
               style={{ border: `1px dashed ${dropBorder}`, background: dropBg, borderRadius: 2 }}
             >
               <div style={{ fontSize: 22, color: '#5A5A5A', marginBottom: 12 }}>⤓</div>
@@ -149,7 +149,9 @@ export default function Submit({ bounty, fileLoaded, fileName, dragging, go, onP
 
         {/* action */}
         <div className="px-5 md:px-8 py-5 md:py-7">
-          <button onClick={startVerify} style={{ width: '100%', background: btnBg, color: btnClr, border: 'none', padding: '15px md:16px', fontFamily: SANS, fontWeight: 600, fontSize: 15, borderRadius: 2, cursor: fileLoaded ? 'pointer' : 'not-allowed' }}>
+          <button onClick={startVerify} disabled={!fileLoaded}
+            className={fileLoaded ? 'vbtn' : ''}
+            style={{ width: '100%', background: btnBg, color: btnClr, border: 'none', padding: '16px', fontFamily: SANS, fontWeight: 600, fontSize: 15, borderRadius: 2, cursor: fileLoaded ? 'pointer' : 'not-allowed', opacity: fileLoaded ? 1 : 0.55 }}>
             Verify &amp; claim reward
           </button>
           <div className="text-center mt-4" style={{ fontFamily: MONO, fontSize: 11, color: '#5A5A5A' }}>
