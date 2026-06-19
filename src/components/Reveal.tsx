@@ -17,7 +17,7 @@ interface Props {
  * Reveals its children on scroll-into-view and hides them again on scroll-out,
  * so the effect re-triggers each pass. No-ops (always shown) under reduced motion.
  */
-export default function Reveal({ children, delay = 0, y = 18, className, style }: Props) {
+export default function Reveal({ children, delay = 0, y = 26, className, style }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [shown, setShown] = useState(false)
   const [reduce, setReduce] = useState(false)
@@ -43,7 +43,7 @@ export default function Reveal({ children, delay = 0, y = 18, className, style }
         transform: shown ? 'none' : `translateY(${y}px)`,
         transition: reduce
           ? 'none'
-          : `opacity .6s ease ${delay}ms, transform .6s cubic-bezier(.22,.61,.36,1) ${delay}ms`,
+          : `opacity 1s ease ${delay}ms, transform 1s cubic-bezier(.22,.61,.36,1) ${delay}ms`,
         willChange: 'opacity, transform',
         ...style,
       }}
