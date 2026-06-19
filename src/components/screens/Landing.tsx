@@ -5,6 +5,7 @@ import { Screen } from '@/lib/data'
 import CanvasDiamond from '../CanvasDiamond'
 import CanvasBurst from '../CanvasBurst'
 import CanvasDiagGrid from '../CanvasDiagGrid'
+import Reveal from '../Reveal'
 
 const MONO  = "var(--font-mono,'JetBrains Mono',monospace)"
 const SERIF = "var(--font-serif,'Instrument Serif',serif)"
@@ -209,7 +210,7 @@ export default function Landing({ go, connectWallet }: Props) {
         <div style={{ position: 'relative', overflow: 'hidden', borderBottom: '1px solid #242424' }}>
           <CanvasBurst />
           <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 72% 88% at 50% 50%,transparent 22%,#0A0A0A 78%)' }} />
-          <div className="relative text-center max-w-[840px] mx-auto px-5 md:px-10 py-12 md:py-[80px]">
+          <Reveal className="relative text-center max-w-[840px] mx-auto px-5 md:px-10 py-12 md:py-[80px]">
             <div className="inline-flex items-center gap-2 mb-6"
               style={{ border: '1px solid #242424', background: 'rgba(10,10,10,.5)', padding: '6px 12px', borderRadius: 2 }}
             >
@@ -226,14 +227,15 @@ export default function Landing({ go, connectWallet }: Props) {
             >
               Veil turns a private exploit into an on-chain payout — without the vulnerability ever leaving the hunter&apos;s machine.
             </p>
-          </div>
+          </Reveal>
         </div>
 
         {/* feature cards — 2-col, Image #5 style */}
         <div className="max-w-[1100px] mx-auto px-5 md:px-10 py-10 md:py-14 pb-16 md:pb-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
             {FEATURES.map((f, i) => (
-              <div key={f.title} className="vcard flex flex-col p-6 md:p-8"
+              <Reveal key={f.title} delay={(i % 2) * 90} className="h-full">
+              <div className="vcard flex flex-col h-full p-6 md:p-8"
                 style={{ background: '#111111', border: '1px solid #242424', borderRadius: 12 }}
               >
                 {/* header: <> Title inline */}
@@ -365,6 +367,7 @@ export default function Landing({ go, connectWallet }: Props) {
                   )}
                 </div>
               </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -376,7 +379,7 @@ export default function Landing({ go, connectWallet }: Props) {
         <div style={{ position: 'relative', overflow: 'hidden', borderBottom: '1px solid #242424' }}>
           <CanvasBurst />
           <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 72% 88% at 50% 50%,transparent 22%,#0A0A0A 78%)' }} />
-          <div className="relative text-center max-w-[840px] mx-auto px-5 md:px-10 py-12 md:py-[80px]">
+          <Reveal className="relative text-center max-w-[840px] mx-auto px-5 md:px-10 py-12 md:py-[80px]">
             <div className="inline-flex items-center gap-2 mb-6"
               style={{ border: '1px solid #242424', background: 'rgba(10,10,10,.5)', padding: '6px 12px', borderRadius: 2 }}
             >
@@ -415,13 +418,13 @@ export default function Landing({ go, connectWallet }: Props) {
                     >{item.label}</span>
               )}
             </div>
-          </div>
+          </Reveal>
         </div>
 
         {/* steps */}
         <div className="max-w-[820px] mx-auto px-5 md:px-10 py-6 pb-16 md:py-8 md:pb-20">
           {STEPS.map((step, i) => (
-            <div key={step.n}
+            <Reveal key={step.n} delay={i * 70} y={14}
               className="grid grid-cols-[46px_1fr] md:grid-cols-[72px_1fr] gap-4 md:gap-7 py-5 md:py-[30px]"
               style={{ borderBottom: i < STEPS.length - 1 ? '1px solid #1c1c1c' : 'none' }}
             >
@@ -436,7 +439,7 @@ export default function Landing({ go, connectWallet }: Props) {
                   style={{ lineHeight: 1.6, color: '#8A8A8A', margin: 0, fontFamily: SANS }}
                 >{step.body}</p>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -446,7 +449,7 @@ export default function Landing({ go, connectWallet }: Props) {
         <CanvasDiagGrid />
         {/* subtle center darkening so text stays legible */}
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 55% 75% at 50% 50%, rgba(10,10,10,.72) 0%, rgba(10,10,10,.18) 62%, transparent 100%)' }} />
-        <div className="relative text-center px-5 md:px-10 py-20 md:py-32">
+        <Reveal className="relative text-center px-5 md:px-10 py-20 md:py-32">
           <h2 className="text-[32px] md:text-[58px]"
             style={{ fontFamily: SANS, fontWeight: 800, lineHeight: 1.05, color: '#FFFFFF', margin: 0, letterSpacing: '-.02em' }}
           >
@@ -467,12 +470,12 @@ export default function Landing({ go, connectWallet }: Props) {
               style={{ background: 'transparent', color: '#EDEDED', border: '1px solid rgba(237,237,237,.32)', padding: '14px 36px', fontFamily: SANS, fontWeight: 500, fontSize: 15, borderRadius: 9999, cursor: 'pointer' }}
             >Open a bounty</button>
           </div>
-        </div>
+        </Reveal>
       </div>
 
       {/* ─── FOOTER ─── */}
       <footer style={{ borderTop: '1px solid #1c1c1c', background: '#080808' }}>
-        <div className="max-w-[1240px] mx-auto px-5 md:px-12 py-12 md:py-16">
+        <Reveal className="max-w-[1240px] mx-auto px-5 md:px-12 py-12 md:py-16" y={12}>
           <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-10 md:gap-24 items-start">
 
             {/* left: brand */}
@@ -526,7 +529,7 @@ export default function Landing({ go, connectWallet }: Props) {
             <div style={{ fontFamily: MONO, fontSize: 11, color: '#383838', letterSpacing: '.02em' }}>© 2025 Veil · Stellar Hackathon</div>
             <div style={{ fontFamily: MONO, fontSize: 11, color: '#383838', letterSpacing: '.02em' }}>RISC Zero · Soroban · ZK</div>
           </div>
-        </div>
+        </Reveal>
       </footer>
 
     </div>
