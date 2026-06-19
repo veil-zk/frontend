@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { prefersReducedMotion } from '@/lib/motion'
 
 interface Props {
   style?: React.CSSProperties
@@ -33,10 +34,11 @@ export default function CanvasBurst({ style, className }: Props) {
         return n - Math.floor(n)
       }
       const start = performance.now()
+      const still = prefersReducedMotion()
       let raf = 0
 
       const draw = (t: number) => {
-        const time = (t - start) / 1000
+        const time = still ? 0 : (t - start) / 1000
         ctx.clearRect(0, 0, w, h)
         for (let y = 0; y <= h; y += gap) {
           for (let x = 0; x <= w; x += gap) {
@@ -60,7 +62,7 @@ export default function CanvasBurst({ style, className }: Props) {
             ctx.fillRect(x - sq / 2, y - sq / 2, sq, sq)
           }
         }
-        raf = requestAnimationFrame(draw)
+        if (!still) raf = requestAnimationFrame(draw)
       }
 
       raf = requestAnimationFrame(draw)

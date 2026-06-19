@@ -11,7 +11,7 @@ const serif = Instrument_Serif({
 })
 
 const sans = Inter({
-  weight: ['400', '500', '600'],
+  weight: ['400', '500', '600', '700', '800'],
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
@@ -26,7 +26,24 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: 'Veil — Trustless Proof-of-Exploit',
-  description: 'Prove the exploit. Reveal nothing. ZK bug bounty on Stellar.',
+  description: 'Prove the exploit. Reveal nothing. ZK bug bounty on Stellar with RISC Zero zero-knowledge proofs.',
+  applicationName: 'Veil',
+  keywords: ['zero-knowledge', 'bug bounty', 'Stellar', 'Soroban', 'RISC Zero', 'proof of exploit'],
+  openGraph: {
+    title: 'Veil — Trustless Proof-of-Exploit',
+    description: 'Prove the exploit. Reveal nothing. ZK bug bounty on Stellar.',
+    siteName: 'Veil',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Veil — Trustless Proof-of-Exploit',
+    description: 'Prove the exploit. Reveal nothing. ZK bug bounty on Stellar.',
+  },
+}
+
+export const viewport = {
+  themeColor: '#0A0A0A',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

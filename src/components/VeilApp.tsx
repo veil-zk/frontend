@@ -16,12 +16,35 @@ import IntroOverlay from './IntroOverlay'
 export default function VeilApp() {
   const [s, setS] = useState<AppState>(INITIAL_STATE)
   const [intro, setIntro] = useState(true)
+  const [showTop, setShowTop] = useState(false)
   const timers = useRef<ReturnType<typeof setTimeout>[]>([])
 
   const addTimer = (t: ReturnType<typeof setTimeout>) => { timers.current.push(t) }
   const clearTimers = () => { timers.current.forEach(clearTimeout); timers.current = [] }
 
   useEffect(() => () => clearTimers(), [])
+
+  // Esc → step back one level
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      setS(prev => {
+        if (prev.screen === 'submit' || prev.screen === 'verify') return { ...prev, screen: 'hunt' }
+        if (prev.screen === 'landing') return prev
+        return { ...prev, screen: 'landing' }
+      })
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  // scroll-to-top button visibility
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 600)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const go = (screen: Screen) => {
     setS(prev => ({ ...prev, screen }))
@@ -208,6 +231,22 @@ export default function VeilApp() {
       </div>
 
       {s.toast && <Toast message={s.toast} />}
+
+      {showTop && !intro && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="vbtn"
+          aria-label="Scroll to top"
+          style={{
+            position: 'fixed', right: 22, bottom: 22, zIndex: 40,
+            width: 42, height: 42, borderRadius: '50%',
+            background: '#161616', color: '#EDEDED',
+            border: '1px solid #2e2e2e', cursor: 'pointer',
+            fontSize: 16, lineHeight: 1,
+            boxShadow: '0 8px 24px -10px rgba(0,0,0,.7)',
+          }}
+        >↑</button>
+      )}
 
       {intro && <IntroOverlay onDone={() => setIntro(false)} />}
     </div>

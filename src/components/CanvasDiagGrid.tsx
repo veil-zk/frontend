@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { prefersReducedMotion } from '@/lib/motion'
 
 interface Props {
   style?: React.CSSProperties
@@ -32,10 +33,11 @@ export default function CanvasDiagGrid({ style, className }: Props) {
       const cosA = Math.cos(ang)
       const sinA = Math.sin(ang)
       const start = performance.now()
+      const still = prefersReducedMotion()
       let raf = 0
 
       const draw = (t: number) => {
-        const time = (t - start) / 1000
+        const time = still ? 0 : (t - start) / 1000
 
         // Global breath: ±14% amplitude over ~3.8s
         const breath = 0.86 + 0.14 * Math.sin(time * 1.65)
@@ -79,7 +81,7 @@ export default function CanvasDiagGrid({ style, className }: Props) {
           }
         }
 
-        raf = requestAnimationFrame(draw)
+        if (!still) raf = requestAnimationFrame(draw)
       }
 
       raf = requestAnimationFrame(draw)

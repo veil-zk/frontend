@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { prefersReducedMotion } from '@/lib/motion'
 
 interface Props {
   onDone: () => void
@@ -32,6 +33,14 @@ export default function IntroOverlay({ onDone, word = 'VEIL' }: Props) {
   const doneRef = useRef(false)
 
   useEffect(() => {
+    // honour reduced-motion: skip the whole intro, reveal landing immediately
+    if (prefersReducedMotion()) {
+      doneRef.current = true
+      setLeaving(true)
+      const tm = setTimeout(onDone, 120)
+      return () => clearTimeout(tm)
+    }
+
     const cv = ref.current
     if (!cv) return
     const ctx = cv.getContext('2d')

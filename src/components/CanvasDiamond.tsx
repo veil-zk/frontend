@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { prefersReducedMotion } from '@/lib/motion'
 
 interface Props {
   width?: number
@@ -102,10 +103,11 @@ export default function CanvasDiamond({ width = 540, height = 540, className, st
     }
 
     const start = performance.now()
+    const still = prefersReducedMotion()
     let raf = 0
 
     const draw = (now: number) => {
-      const time = (now - start) / 1000
+      const time = still ? 0 : (now - start) / 1000
       const m = linearMorph(time % CYCLE)
       ctx.clearRect(0, 0, w, h)
 
@@ -149,7 +151,7 @@ export default function CanvasDiamond({ width = 540, height = 540, className, st
         ctx.fillRect(x - size / 2, y - size / 2, size, size)
       }
 
-      raf = requestAnimationFrame(draw)
+      if (!still) raf = requestAnimationFrame(draw)
     }
 
     raf = requestAnimationFrame(draw)
