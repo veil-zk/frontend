@@ -1,6 +1,7 @@
 'use client'
 
 import { Screen } from '@/lib/data'
+import { shortAddr } from '@/lib/wallet'
 
 const MONO = "var(--font-mono,'JetBrains Mono',monospace)"
 const SANS = "var(--font-sans,'Inter',sans-serif)"
@@ -10,9 +11,13 @@ interface Props {
   huntActive: boolean
   createActive: boolean
   balanceStr: string
+  connected: boolean
+  connecting: boolean
+  address: string | null
+  onConnect: () => void
 }
 
-export default function AppNav({ go, huntActive, createActive, balanceStr }: Props) {
+export default function AppNav({ go, huntActive, createActive, balanceStr, connected, connecting, address, onConnect }: Props) {
   const tabBg  = (on: boolean) => on ? '#1c1c1c' : 'transparent'
   const tabClr = (on: boolean) => on ? '#EDEDED' : '#8A8A8A'
 
@@ -46,15 +51,25 @@ export default function AppNav({ go, huntActive, createActive, balanceStr }: Pro
         </div>
       </div>
 
-      {/* wallet badge */}
-      <div className="flex items-center gap-2 md:gap-[9px] px-3 md:px-[14px] py-2 md:py-[8px]"
-        style={{ border: '1px solid #242424', borderRadius: 2 }}
-      >
-        <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#14B88A', display: 'inline-block', boxShadow: '0 0 0 3px rgba(20,184,138,.12)' }} />
-        <span className="hidden sm:inline" style={{ fontFamily: MONO, fontSize: 12, color: '#EDEDED', letterSpacing: '.02em' }}>GD7X…K2P9</span>
-        <span className="hidden sm:inline" style={{ fontFamily: MONO, fontSize: 12, color: '#5A5A5A' }}>·</span>
-        <span style={{ fontFamily: MONO, fontSize: 12, color: '#8A8A8A' }}>{balanceStr} XLM</span>
-      </div>
+      {/* wallet badge / connect */}
+      {connected ? (
+        <div className="flex items-center gap-2 md:gap-[9px] px-3 md:px-[14px] py-2 md:py-[8px]"
+          style={{ border: '1px solid #242424', borderRadius: 2 }}
+        >
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#14B88A', display: 'inline-block', boxShadow: '0 0 0 3px rgba(20,184,138,.12)' }} />
+          <span className="hidden sm:inline" style={{ fontFamily: MONO, fontSize: 12, color: '#EDEDED', letterSpacing: '.02em' }}>{address ? shortAddr(address) : '—'}</span>
+          <span className="hidden sm:inline" style={{ fontFamily: MONO, fontSize: 12, color: '#5A5A5A' }}>·</span>
+          <span style={{ fontFamily: MONO, fontSize: 12, color: '#8A8A8A' }}>{balanceStr} XLM</span>
+        </div>
+      ) : (
+        <button onClick={onConnect} disabled={connecting}
+          className="vbtn vbtn-ghost flex items-center gap-2 px-3 md:px-[14px] py-2 md:py-[8px]"
+          style={{ background: 'transparent', border: '1px solid #333', borderRadius: 2, cursor: connecting ? 'wait' : 'pointer', fontFamily: MONO, fontSize: 12, color: '#EDEDED', letterSpacing: '.02em' }}
+        >
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#14B88A', display: 'inline-block' }} />
+          {connecting ? 'Connecting…' : 'Connect wallet'}
+        </button>
+      )}
     </div>
   )
 }

@@ -12,12 +12,18 @@ import Create from './screens/Create'
 import AppNav from './AppNav'
 import Toast from './Toast'
 import IntroOverlay from './IntroOverlay'
+import { useWallet } from '@/hooks/useWallet'
+import { shortAddr } from '@/lib/wallet'
+import { CONTRACTS_CONFIGURED, claim } from '@/lib/stellar'
 
 export default function VeilApp() {
   const [s, setS] = useState<AppState>(INITIAL_STATE)
   const [intro, setIntro] = useState(true)
   const [showTop, setShowTop] = useState(false)
   const timers = useRef<ReturnType<typeof setTimeout>[]>([])
+  const receiptRef = useRef<Uint8Array | null>(null)
+  const wallet = useWallet()
+  const connected = wallet.status === 'connected'
 
   const addTimer = (t: ReturnType<typeof setTimeout>) => { timers.current.push(t) }
   const clearTimers = () => { timers.current.forEach(clearTimeout); timers.current = [] }
@@ -56,8 +62,13 @@ export default function VeilApp() {
     addTimer(setTimeout(() => setS(prev => ({ ...prev, toast: null })), ms))
   }
 
-  const connectWallet = () => {
-    showToast('Wallet connected · GD7X…K2P9')
+  const connectWallet = async () => {
+    try {
+      const w = await wallet.connect()
+      showToast('Wallet connected · ' + shortAddr(w.address))
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Could not connect — exploring in demo mode', 4200)
+    }
     go('hunt')
   }
 
@@ -71,11 +82,35 @@ export default function VeilApp() {
     setS(prev => ({ ...prev, fileLoaded: true, fileName: name || 'receipt.bin', dragging: false }))
   }
 
-  const startVerify = () => {
+  // capture the dropped/picked receipt bytes for a real on-chain claim
+  const captureFile = async (file?: File) => {
+    if (!file) { receiptRef.current = null; loadFile('receipt.bin'); return }
+    try { receiptRef.current = new Uint8Array(await file.arrayBuffer()) } catch { receiptRef.current = null }
+    loadFile(file.name)
+  }
+
+  const startVerify = async () => {
     if (!s.fileLoaded) return
     clearTimers()
-
     const activeId = s.activeId
+
+    // ── real on-chain claim (only when a verifier contract + wallet exist) ──
+    if (CONTRACTS_CONFIGURED && wallet.address && receiptRef.current) {
+      setS(prev => ({ ...prev, screen: 'verify', verifyStep: 1, verified: false }))
+      try { window.scrollTo(0, 0) } catch (_) {}
+      try {
+        await claim(wallet.address, receiptRef.current, wallet.sign)
+        setS(st => ({ ...st, verifyStep: STEPS.length, verified: true, claimed: { ...st.claimed, [activeId]: true } }))
+        wallet.refreshBalance()
+        showToast('Proof valid · reward released on-chain', 4200)
+      } catch (e) {
+        setS(st => ({ ...st, verifyStep: 0, screen: 'submit' }))
+        showToast(e instanceof Error ? e.message : 'Claim failed on-chain', 5000)
+      }
+      return
+    }
+
+    // ── demo flow (no contract configured) ──
     let step = 0
 
     const tick = () => {
@@ -173,7 +208,11 @@ export default function VeilApp() {
             go={go}
             huntActive={huntActive}
             createActive={s.screen === 'create'}
-            balanceStr={s.balance.toLocaleString('en-US')}
+            connected={connected}
+            address={wallet.address}
+            connecting={wallet.status === 'connecting'}
+            onConnect={connectWallet}
+            balanceStr={(connected ? wallet.balance : s.balance).toLocaleString('en-US')}
           />
 
           {s.screen === 'hunt' && (
@@ -199,8 +238,8 @@ export default function VeilApp() {
               onPickFile={() => (document.getElementById('veil-file') as HTMLInputElement | null)?.click()}
               onDragOver={(e) => { e.preventDefault(); if (!s.dragging) setS(prev => ({ ...prev, dragging: true })) }}
               onDragLeave={(e) => { e.preventDefault(); setS(prev => ({ ...prev, dragging: false })) }}
-              onDrop={(e) => { e.preventDefault(); loadFile(e.dataTransfer?.files?.[0]?.name ?? 'receipt.bin') }}
-              onPick={(e) => loadFile((e.target as HTMLInputElement).files?.[0]?.name ?? 'receipt.bin')}
+              onDrop={(e) => { e.preventDefault(); captureFile(e.dataTransfer?.files?.[0]) }}
+              onPick={(e) => captureFile((e.target as HTMLInputElement).files?.[0] ?? undefined)}
               startVerify={startVerify}
             />
           )}
@@ -210,7 +249,7 @@ export default function VeilApp() {
               bounty={activeBounty}
               steps={steps}
               verified={s.verified}
-              balanceStr={s.balance.toLocaleString('en-US')}
+              balanceStr={(connected ? wallet.balance : s.balance).toLocaleString('en-US')}
               backToBounties={backToBounties}
             />
           )}
