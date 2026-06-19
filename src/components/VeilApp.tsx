@@ -11,9 +11,11 @@ import Verify from './screens/Verify'
 import Create from './screens/Create'
 import AppNav from './AppNav'
 import Toast from './Toast'
+import IntroOverlay from './IntroOverlay'
 
 export default function VeilApp() {
   const [s, setS] = useState<AppState>(INITIAL_STATE)
+  const [intro, setIntro] = useState(true)
   const timers = useRef<ReturnType<typeof setTimeout>[]>([])
 
   const addTimer = (t: ReturnType<typeof setTimeout>) => { timers.current.push(t) }
@@ -193,6 +195,8 @@ export default function VeilApp() {
       )}
 
       {s.toast && <Toast message={s.toast} />}
+
+      {intro && <IntroOverlay onDone={() => setIntro(false)} />}
     </div>
   )
 }
