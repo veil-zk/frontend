@@ -1,14 +1,7 @@
-// Thin wrapper around @stellar/freighter-api (v6, object-return shape).
-// All calls are browser-only; guard with isBrowser before use.
-import {
-  isConnected,
-  isAllowed,
-  setAllowed,
-  requestAccess,
-  getAddress,
-  getNetwork,
-  signTransaction,
-} from '@stellar/freighter-api'
+// Wallet layer built on @creit.tech/stellar-wallets-kit (v2).
+// The kit ships its own wallet-picker modal (Freighter, xBull, Albedo, Rabet,
+// Lobstr, Hana) and handles per-wallet signing. Loaded via dynamic import so
+// none of its browser-only code runs during SSR.
 
 export type WalletInfo = {
   address: string
@@ -16,60 +9,74 @@ export type WalletInfo = {
   networkPassphrase: string
 }
 
-/** Is the Freighter extension installed in this browser? */
-export async function freighterInstalled(): Promise<boolean> {
-  try {
-    const r = await isConnected()
-    return !!r.isConnected
-  } catch {
-    return false
+const PASSPHRASE_TESTNET = 'Test SDF Network ; September 2015'
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let KitRef: any = null
+let inited = false
+
+async function getKit() {
+  const mod = await import('@creit.tech/stellar-wallets-kit')
+  const { StellarWalletsKit, Networks } = mod
+  if (!inited) {
+    const [fr, xb, al, ra, lo, ha] = await Promise.all([
+      import('@creit.tech/stellar-wallets-kit/modules/freighter'),
+      import('@creit.tech/stellar-wallets-kit/modules/xbull'),
+      import('@creit.tech/stellar-wallets-kit/modules/albedo'),
+      import('@creit.tech/stellar-wallets-kit/modules/rabet'),
+      import('@creit.tech/stellar-wallets-kit/modules/lobstr'),
+      import('@creit.tech/stellar-wallets-kit/modules/hana'),
+    ])
+    StellarWalletsKit.init({
+      network: Networks.TESTNET,
+      modules: [
+        new fr.FreighterModule(),
+        new xb.xBullModule(),
+        new al.AlbedoModule(),
+        new ra.RabetModule(),
+        new lo.LobstrModule(),
+        new ha.HanaModule(),
+      ],
+    })
+    inited = true
   }
+  KitRef = StellarWalletsKit
+  return StellarWalletsKit
 }
 
-/** Already authorised for this site + has an address? Returns null if not. */
-export async function getConnected(): Promise<WalletInfo | null> {
-  try {
-    if (!(await freighterInstalled())) return null
-    const allowed = await isAllowed()
-    if (!allowed.isAllowed) return null
-    const addr = await getAddress()
-    if (addr.error || !addr.address) return null
-    const net = await getNetwork()
-    return {
-      address: addr.address,
-      network: net.network ?? 'TESTNET',
-      networkPassphrase: net.networkPassphrase ?? '',
-    }
-  } catch {
-    return null
-  }
-}
-
-/** Prompt the user to connect. Throws a human message on failure. */
+/** Open the kit's wallet-picker modal and return the chosen account. */
 export async function connect(): Promise<WalletInfo> {
-  if (!(await freighterInstalled())) {
-    throw new Error('Freighter not detected. Install the Freighter extension to connect.')
-  }
-  await setAllowed()
-  const access = await requestAccess()
-  if (access.error || !access.address) {
-    throw new Error(access.error || 'Connection rejected in Freighter.')
-  }
-  const net = await getNetwork()
-  return {
-    address: access.address,
-    network: net.network ?? 'TESTNET',
-    networkPassphrase: net.networkPassphrase ?? '',
+  const kit = await getKit()
+  try {
+    const { address } = await kit.authModal()
+    if (!address) throw new Error('No address returned from wallet.')
+    return { address, network: 'TESTNET', networkPassphrase: PASSPHRASE_TESTNET }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : (e as { message?: string })?.message
+    throw new Error(msg || 'Connection cancelled.')
   }
 }
 
-/** Sign a transaction XDR with Freighter; returns signed XDR. */
+/**
+ * No silent auto-reconnect: the kit keeps the address only in memory, and
+ * re-fetching on load can pop an unexpected wallet prompt. Users reconnect
+ * once per session via the modal.
+ */
+export async function getConnected(): Promise<WalletInfo | null> {
+  return null
+}
+
+/** Sign a transaction XDR with the active wallet; returns signed XDR. */
 export async function sign(xdr: string, networkPassphrase: string): Promise<string> {
-  const res = await signTransaction(xdr, { networkPassphrase })
-  if (res.error || !res.signedTxXdr) {
-    throw new Error(res.error || 'Signing rejected in Freighter.')
-  }
+  const kit = await getKit()
+  const res = await kit.signTransaction(xdr, { networkPassphrase })
+  if (!res?.signedTxXdr) throw new Error('Signing rejected in wallet.')
   return res.signedTxXdr
+}
+
+/** Clear the kit's active session. */
+export async function disconnectWallet(): Promise<void> {
+  try { if (KitRef) await KitRef.disconnect() } catch { /* noop */ }
 }
 
 /** GD7X…K2P9 style truncation for display. */

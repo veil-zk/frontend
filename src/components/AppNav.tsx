@@ -15,9 +15,10 @@ interface Props {
   connecting: boolean
   address: string | null
   onConnect: () => void
+  onDisconnect: () => void
 }
 
-export default function AppNav({ go, huntActive, createActive, balanceStr, connected, connecting, address, onConnect }: Props) {
+export default function AppNav({ go, huntActive, createActive, balanceStr, connected, connecting, address, onConnect, onDisconnect }: Props) {
   const tabBg  = (on: boolean) => on ? '#1c1c1c' : 'transparent'
   const tabClr = (on: boolean) => on ? '#EDEDED' : '#8A8A8A'
 
@@ -53,14 +54,15 @@ export default function AppNav({ go, huntActive, createActive, balanceStr, conne
 
       {/* wallet badge / connect */}
       {connected ? (
-        <div className="flex items-center gap-2 md:gap-[9px] px-3 md:px-[14px] py-2 md:py-[8px]"
-          style={{ border: '1px solid #242424', borderRadius: 2 }}
+        <button onClick={onDisconnect} title="Disconnect wallet"
+          className="vbtn group flex items-center gap-2 md:gap-[9px] px-3 md:px-[14px] py-2 md:py-[8px]"
+          style={{ border: '1px solid #242424', borderRadius: 2, background: 'transparent', cursor: 'pointer' }}
         >
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#14B88A', display: 'inline-block', boxShadow: '0 0 0 3px rgba(20,184,138,.12)' }} />
           <span className="hidden sm:inline" style={{ fontFamily: MONO, fontSize: 12, color: '#EDEDED', letterSpacing: '.02em' }}>{address ? shortAddr(address) : '—'}</span>
           <span className="hidden sm:inline" style={{ fontFamily: MONO, fontSize: 12, color: '#5A5A5A' }}>·</span>
           <span style={{ fontFamily: MONO, fontSize: 12, color: '#8A8A8A' }}>{balanceStr} XLM</span>
-        </div>
+        </button>
       ) : (
         <button onClick={onConnect} disabled={connecting}
           className="vbtn vbtn-ghost flex items-center gap-2 px-3 md:px-[14px] py-2 md:py-[8px]"

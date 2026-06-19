@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { connect as fConnect, getConnected, sign as fSign, type WalletInfo } from '@/lib/wallet'
+import { connect as fConnect, getConnected, sign as fSign, disconnectWallet, type WalletInfo } from '@/lib/wallet'
 import { getXlmBalance } from '@/lib/stellar'
 
 export type WalletStatus = 'idle' | 'connecting' | 'connected'
@@ -63,6 +63,7 @@ export function useWallet(): UseWallet {
   }, [loadBalance])
 
   const disconnect = useCallback(() => {
+    disconnectWallet()
     setInfo(null)
     setStatus('idle')
     setBalance(0)

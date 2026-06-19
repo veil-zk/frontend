@@ -158,13 +158,13 @@ export default function Landing({ go, connectWallet }: Props) {
             </Reveal>
             <Reveal delay={160} y={16}>
               <p
-                className="text-[15px] md:text-[17px] mb-7 md:mb-10"
+                className="text-[15px] md:text-[17px]"
                 style={{ lineHeight: 1.6, color: '#8A8A8A', maxWidth: 480, fontFamily: SANS, margin: 0 }}
               >
                 Hunters prove they broke your contract without leaking how. The contract verifies the zero-knowledge proof on-chain and pays out automatically.
               </p>
             </Reveal>
-            <Reveal delay={240} y={16} className="flex flex-col sm:flex-row gap-3 md:gap-[14px]">
+            <Reveal delay={240} y={16} className="flex flex-col sm:flex-row gap-3 md:gap-[14px] mt-9 md:mt-12">
               <button onClick={() => go('hunt')} className="vbtn"
                 style={{ background: '#EDEDED', color: '#0A0A0A', border: 'none', padding: '14px 24px', fontFamily: SANS, fontWeight: 600, fontSize: 14, borderRadius: 2, cursor: 'pointer' }}
               >Explore bounties</button>
@@ -196,16 +196,24 @@ export default function Landing({ go, connectWallet }: Props) {
       </div>
 
       {/* ─── TECH BAR ─── */}
-      <Reveal y={10} className="flex flex-wrap items-center gap-3 md:gap-[14px] px-5 md:px-12 py-[22px]"
-        style={{ borderTop: '1px solid #242424' }}
+      <Reveal y={12} className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 px-5 md:px-12 py-7 md:py-8"
+        style={{ borderTop: '1px solid #242424', background: 'linear-gradient(180deg,#0C0C0C,#0A0A0A)' }}
       >
-        <span style={{ fontFamily: MONO, fontSize: 11, color: '#5A5A5A', letterSpacing: '.14em', textTransform: 'uppercase' }}>Built on</span>
-        {['Stellar', 'Soroban', 'RISC Zero', 'zero-knowledge'].map((t, i, a) => (
-          <span key={t} style={{ display: 'contents' }}>
-            <span style={{ fontFamily: MONO, fontSize: 12, color: '#8A8A8A' }}>{t}</span>
-            {i < a.length - 1 && <span style={{ color: '#333' }}>·</span>}
-          </span>
-        ))}
+        <span style={{ fontFamily: MONO, fontSize: 11, color: '#5A5A5A', letterSpacing: '.2em', textTransform: 'uppercase', flexShrink: 0 }}>Built on</span>
+        <div className="flex flex-wrap items-center gap-2 md:gap-3">
+          {['Stellar', 'Soroban', 'RISC Zero', 'Zero-Knowledge'].map((t) => (
+            <span key={t} className="vlink inline-flex items-center gap-2"
+              style={{
+                fontFamily: MONO, fontSize: 13, color: '#EDEDED', letterSpacing: '.01em',
+                border: '1px solid #242424', background: '#121212',
+                padding: '8px 14px', borderRadius: 999, cursor: 'default',
+              }}
+            >
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#14B88A', display: 'inline-block', boxShadow: '0 0 6px rgba(20,184,138,.7)' }} />
+              {t}
+            </span>
+          ))}
+        </div>
       </Reveal>
 
       {/* ─── FEATURES ─── */}

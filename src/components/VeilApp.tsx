@@ -212,6 +212,7 @@ export default function VeilApp() {
             address={wallet.address}
             connecting={wallet.status === 'connecting'}
             onConnect={connectWallet}
+            onDisconnect={() => { wallet.disconnect(); showToast('Wallet disconnected') }}
             balanceStr={(connected ? wallet.balance : s.balance).toLocaleString('en-US')}
           />
 
