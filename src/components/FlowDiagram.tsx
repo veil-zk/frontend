@@ -70,21 +70,21 @@ function Container({ x, y, w, h, title, children }: {
 
 type E = { id: string; from: [number, number]; to: [number, number]; label?: string; private?: boolean; faint?: boolean; dur: number }
 
-// viewBox 0 0 1280 600
+// viewBox 0 75 1320 455
 const EDGES: E[] = [
   { id: 'e1', from: [260, 333], to: [430, 312], label: 'secret a,b', private: true, dur: 1.8 },
   { id: 'e2', from: [260, 453], to: [430, 388], label: 'guest run', dur: 2.1 },
   { id: 'e3', from: [670, 312], to: [820, 312], label: 'journal', dur: 1.9 },
   { id: 'e4', from: [670, 388], to: [820, 388], label: 'seal', dur: 2.0 },
-  { id: 'e5', from: [1060, 312], to: [1124, 350], dur: 1.7 },
-  { id: 'e6', from: [1060, 388], to: [1124, 350], label: 'proof valid', dur: 1.9 },
+  { id: 'e5', from: [1060, 312], to: [1170, 350], dur: 1.7 },
+  { id: 'e6', from: [1060, 388], to: [1170, 350], label: 'proof valid', dur: 1.9 },
   { id: 'e7', from: [260, 183], to: [940, 252], label: 'victim binding', faint: true, dur: 3.6 },
 ]
 
 const PORTS: [number, number][] = [
   [260, 333], [260, 453], [260, 183], [430, 312], [430, 388],
   [670, 312], [670, 388], [820, 312], [820, 388],
-  [1060, 312], [1060, 388], [1124, 350], [940, 252],
+  [1060, 312], [1060, 388], [1170, 350], [940, 252],
 ]
 
 export default function FlowDiagram() {
@@ -111,7 +111,7 @@ export default function FlowDiagram() {
       {/* canvas */}
       <div style={{ width: '100%', overflowX: 'auto', background: '#080808' }}>
         <div style={{ minWidth: 920 }}>
-          <svg viewBox="0 0 1280 600" width="100%" role="img"
+          <svg viewBox="0 75 1320 455" width="100%" role="img"
             aria-label="Veil proof pipeline node graph"
             style={{ display: 'block' }}
           >
@@ -120,13 +120,15 @@ export default function FlowDiagram() {
                 <circle cx="1.2" cy="1.2" r="1.2" fill="#161616" />
               </pattern>
             </defs>
-            <rect x="0" y="0" width="1280" height="600" fill="url(#flowgrid)" />
+            <rect x="0" y="0" width="1320" height="600" fill="url(#flowgrid)" />
 
             {/* edges */}
             {EDGES.map((e) => {
-              const d = curve(e.from[0], e.from[1], e.to[0], e.to[1])
-              const mx = (e.from[0] + e.to[0]) / 2
-              const my = (e.from[1] + e.to[1]) / 2 - (e.id === 'e7' ? 60 : 12)
+              const d = e.id === 'e7'
+                ? 'M260,183 C470,96 760,96 940,252'
+                : curve(e.from[0], e.from[1], e.to[0], e.to[1])
+              const mx = e.id === 'e7' ? 600 : (e.from[0] + e.to[0]) / 2
+              const my = e.id === 'e7' ? 108 : (e.from[1] + e.to[1]) / 2 - 12
               const col = e.private ? TEAL_HI : TEAL
               const lw = (e.label?.length ?? 0) * 6.2 + 18
               return (
@@ -179,7 +181,7 @@ export default function FlowDiagram() {
             </Container>
 
             {/* payout */}
-            <Leaf x={1124} y={317} w={120} h={66} label="PAYOUT" value="2,500 XLM" accent />
+            <Leaf x={1170} y={317} w={124} h={66} label="PAYOUT" value="2,500 XLM" accent />
           </svg>
         </div>
       </div>
