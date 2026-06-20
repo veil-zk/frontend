@@ -74,6 +74,11 @@ a:focus-visible,
 .vinput:focus-within,
 .vinput:focus { border-color: rgba(20, 184, 138, .5) !important; }
 
+/* ── flow diagram edges ────────────────────────────── */
+@keyframes flowdash { to { stroke-dashoffset: -26; } }
+.flow-edge { animation: flowdash .9s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .flow-edge { animation: none; } }
+
 /* ── wallet modal rows ─────────────────────────────── */
 .wallet-row { transition: background .15s ease, border-color .15s ease; }
 .wallet-row:hover { background: #161616 !important; border-color: #242424 !important; }

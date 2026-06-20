@@ -6,6 +6,7 @@ import CanvasDiamond from '../CanvasDiamond'
 import CanvasBurst from '../CanvasBurst'
 import CanvasDiagGrid from '../CanvasDiagGrid'
 import Reveal from '../Reveal'
+import FlowDiagram from '../FlowDiagram'
 
 const MONO  = "var(--font-mono,'JetBrains Mono',monospace)"
 const SERIF = "var(--font-serif,'Instrument Serif',serif)"
@@ -18,14 +19,6 @@ const FEATURES = [
   { title: 'Open-source rules',      desc: "Each bounty's ImageID pins the exact guest program that defines a valid break." },
   { title: 'No disclosure risk',     desc: "The vulnerability is proven, not published. Nothing leaks to the contract or the chain." },
   { title: 'Permissionless',         desc: "Anyone can open a bounty or claim one. The contract is the only arbiter." },
-]
-
-const STEPS = [
-  { n: '01', title: 'Open a bounty',    body: <>A creator locks a reward against a deployed contract and publishes the guest <code style={{ fontFamily: MONO, color: '#EDEDED', background: 'none' }}>ImageID</code> that defines a valid break.</> },
-  { n: '02', title: 'Break it locally', body: "A hunter finds the exploit and runs the open-source guest program on their own machine — the secret input never leaves it." },
-  { n: '03', title: 'Generate a proof', body: <>RISC Zero produces a receipt — a <code style={{ fontFamily: MONO, color: '#EDEDED', background: 'none' }}>journal + seal</code> — that proves the break happened, with nothing about how.</> },
-  { n: '04', title: 'Verify on-chain',  body: <>The hunter submits the receipt; the Soroban contract verifies it against the <code style={{ fontFamily: MONO, color: '#EDEDED', background: 'none' }}>ImageID</code> and the victim binding.</> },
-  { n: '05', title: 'Get paid',         body: "On a valid proof, the contract releases the escrow to the hunter automatically — in the same transaction." },
 ]
 
 function scrollTo(id: string) {
@@ -398,62 +391,23 @@ export default function Landing({ go, connectWallet }: Props) {
               <span style={{ width: 5, height: 5, background: '#14B88A', display: 'inline-block' }} />
               <span style={{ fontFamily: MONO, fontSize: 11, color: '#8A8A8A', letterSpacing: '.14em', textTransform: 'uppercase' }}>How it works</span>
             </div>
-            <h2 className="text-[36px] md:text-[58px] mb-7"
+            <h2 className="text-[36px] md:text-[58px] mb-5"
               style={{ fontFamily: SERIF, fontWeight: 400, lineHeight: 1.02, letterSpacing: '-.01em', color: '#EDEDED', margin: 0 }}
             >
-              From exploit to payout,<br />in five steps.
+              From exploit to payout,<br />in one flow.
             </h2>
-            {/* flow pills */}
-            <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mt-6">
-              {[
-                { label: 'secret input', teal: true  },
-                { label: '→',            arrow: true  },
-                { label: 'zk proof',     teal: false  },
-                { label: '→',            arrow: true  },
-                { label: 'receipt',      teal: false  },
-                { label: '→',            arrow: true  },
-                { label: 'on-chain verify', teal: false },
-                { label: '→',            arrow: true  },
-                { label: 'payout',       teal: true   },
-              ].map((item, i) =>
-                (item as { arrow?: boolean }).arrow
-                  ? <span key={i} style={{ color: '#5A5A5A', fontFamily: 'monospace', fontSize: 13 }}>→</span>
-                  : <span key={i}
-                      className="text-[9px] md:text-[11px] px-2 py-1 md:px-3 md:py-1.5"
-                      style={{
-                        fontFamily: MONO,
-                        color: item.teal ? '#14B88A' : '#8A8A8A',
-                        border: `1px solid ${item.teal ? 'rgba(20,184,138,.35)' : '#242424'}`,
-                        background: item.teal ? 'rgba(20,184,138,.06)' : 'transparent',
-                        borderRadius: 2,
-                      }}
-                    >{item.label}</span>
-              )}
-            </div>
+            <p className="text-[14px] md:text-[16px] max-w-[520px] mx-auto mt-5"
+              style={{ lineHeight: 1.6, color: '#8A8A8A', fontFamily: SANS }}
+            >
+              The secret exploit flows into the proof and never past it. Everything downstream is public and verifiable on-chain.
+            </p>
           </Reveal>
         </div>
 
-        {/* steps */}
-        <div className="max-w-[820px] mx-auto px-5 md:px-10 py-6 pb-16 md:py-8 md:pb-20">
-          {STEPS.map((step, i) => (
-            <Reveal key={step.n} delay={i * 70} y={14}
-              className="grid grid-cols-[46px_1fr] md:grid-cols-[72px_1fr] gap-4 md:gap-7 py-5 md:py-[30px]"
-              style={{ borderBottom: i < STEPS.length - 1 ? '1px solid #1c1c1c' : 'none' }}
-            >
-              <div className="text-[32px] md:text-[42px]"
-                style={{ fontFamily: SERIF, color: '#14B88A', lineHeight: 1 }}
-              >{step.n}</div>
-              <div>
-                <div className="text-[15px] md:text-[19px] mb-1.5 md:mb-2"
-                  style={{ fontFamily: SANS, fontWeight: 600, color: '#EDEDED' }}
-                >{step.title}</div>
-                <p className="text-[12.5px] md:text-[14.5px]"
-                  style={{ lineHeight: 1.6, color: '#8A8A8A', margin: 0, fontFamily: SANS }}
-                >{step.body}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+        {/* flow diagram */}
+        <Reveal className="max-w-[1180px] mx-auto px-4 md:px-10 py-10 md:py-16">
+          <FlowDiagram />
+        </Reveal>
       </section>
 
       {/* ─── CTA ─── */}
