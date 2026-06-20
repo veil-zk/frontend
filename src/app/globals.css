@@ -74,6 +74,10 @@ a:focus-visible,
 .vinput:focus-within,
 .vinput:focus { border-color: rgba(20, 184, 138, .5) !important; }
 
+/* ── wallet modal rows ─────────────────────────────── */
+.wallet-row { transition: background .15s ease, border-color .15s ease; }
+.wallet-row:hover { background: #161616 !important; border-color: #242424 !important; }
+
 /* ── per-screen enter animation ────────────────────── */
 /* opacity-only: a lingering transform would break sticky navs inside */
 @keyframes screenfade { from { opacity: 0; } to { opacity: 1; } }

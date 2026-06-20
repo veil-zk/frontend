@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { connect as fConnect, getConnected, sign as fSign, disconnectWallet, type WalletInfo } from '@/lib/wallet'
+import { connectWith as libConnectWith, getConnected, sign as fSign, disconnectWallet, type WalletInfo } from '@/lib/wallet'
 import { getXlmBalance } from '@/lib/stellar'
 
 export type WalletStatus = 'idle' | 'connecting' | 'connected'
@@ -12,7 +12,7 @@ export type UseWallet = {
   network: string | null
   balance: number
   error: string | null
-  connect: () => Promise<WalletInfo>
+  connectWith: (id: string) => Promise<WalletInfo>
   disconnect: () => void
   refreshBalance: () => void
   sign: (xdr: string, passphrase: string) => Promise<string>
@@ -42,11 +42,11 @@ export function useWallet(): UseWallet {
     return () => { mounted.current = false }
   }, [loadBalance])
 
-  const connect = useCallback(async () => {
+  const connectWith = useCallback(async (id: string) => {
     setError(null)
     setStatus('connecting')
     try {
-      const w = await fConnect()
+      const w = await libConnectWith(id)
       if (mounted.current) {
         setInfo(w)
         setStatus('connected')
@@ -80,7 +80,7 @@ export function useWallet(): UseWallet {
     network: info?.network ?? null,
     balance,
     error,
-    connect,
+    connectWith,
     disconnect,
     refreshBalance,
     sign: fSign,

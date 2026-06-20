@@ -12,6 +12,7 @@ import Create from './screens/Create'
 import AppNav from './AppNav'
 import Toast from './Toast'
 import IntroOverlay from './IntroOverlay'
+import WalletModal from './WalletModal'
 import { useWallet } from '@/hooks/useWallet'
 import { shortAddr } from '@/lib/wallet'
 import { CONTRACTS_CONFIGURED, claim } from '@/lib/stellar'
@@ -20,6 +21,8 @@ export default function VeilApp() {
   const [s, setS] = useState<AppState>(INITIAL_STATE)
   const [intro, setIntro] = useState(true)
   const [showTop, setShowTop] = useState(false)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [connectingId, setConnectingId] = useState<string | null>(null)
   const timers = useRef<ReturnType<typeof setTimeout>[]>([])
   const receiptRef = useRef<Uint8Array | null>(null)
   const wallet = useWallet()
@@ -62,14 +65,20 @@ export default function VeilApp() {
     addTimer(setTimeout(() => setS(prev => ({ ...prev, toast: null })), ms))
   }
 
-  const connectWallet = async () => {
+  const connectWallet = () => setPickerOpen(true)
+
+  const chooseWallet = async (id: string) => {
+    setConnectingId(id)
     try {
-      const w = await wallet.connect()
+      const w = await wallet.connectWith(id)
+      setPickerOpen(false)
       showToast('Wallet connected · ' + shortAddr(w.address))
+      if (['landing', 'features', 'howitworks'].includes(s.screen)) go('hunt')
     } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Could not connect — exploring in demo mode', 4200)
+      showToast(e instanceof Error ? e.message : 'Could not connect', 4200)
+    } finally {
+      setConnectingId(null)
     }
-    go('hunt')
   }
 
   const openSubmit = (id: string) => {
@@ -287,6 +296,13 @@ export default function VeilApp() {
           }}
         >↑</button>
       )}
+
+      <WalletModal
+        open={pickerOpen}
+        connectingId={connectingId}
+        onClose={() => setPickerOpen(false)}
+        onChoose={chooseWallet}
+      />
 
       {intro && <IntroOverlay onDone={() => setIntro(false)} />}
     </div>

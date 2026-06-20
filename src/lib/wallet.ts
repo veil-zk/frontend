@@ -1,12 +1,20 @@
 // Wallet layer built on @creit.tech/stellar-wallets-kit (v2).
-// The kit ships its own wallet-picker modal (Freighter, xBull, Albedo, Rabet,
-// Lobstr, Hana) and handles per-wallet signing. Loaded via dynamic import so
-// none of its browser-only code runs during SSR.
+// The kit detects + signs for many wallets; we drive it with our OWN dark modal
+// (the kit's bundled modal is light-themed and clashes with the Veil UI).
+// Loaded via dynamic import so none of its browser-only code runs during SSR.
 
 export type WalletInfo = {
   address: string
   network: string
   networkPassphrase: string
+}
+
+export type WalletOption = {
+  id: string
+  name: string
+  icon: string
+  isAvailable: boolean
+  url: string
 }
 
 const PASSPHRASE_TESTNET = 'Test SDF Network ; September 2015'
@@ -44,11 +52,26 @@ async function getKit() {
   return StellarWalletsKit
 }
 
-/** Open the kit's wallet-picker modal and return the chosen account. */
-export async function connect(): Promise<WalletInfo> {
+/** Supported wallets with detected-availability + icons, for the custom modal. */
+export async function listWallets(): Promise<WalletOption[]> {
+  const kit = await getKit()
+  const list = await kit.refreshSupportedWallets()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (list as any[]).map((w) => ({
+    id: w.id,
+    name: w.name,
+    icon: w.icon,
+    isAvailable: !!w.isAvailable,
+    url: w.url,
+  }))
+}
+
+/** Activate the chosen wallet and fetch its address (prompts the wallet). */
+export async function connectWith(id: string): Promise<WalletInfo> {
   const kit = await getKit()
   try {
-    const { address } = await kit.authModal()
+    kit.setWallet(id)
+    const { address } = await kit.fetchAddress()
     if (!address) throw new Error('No address returned from wallet.')
     return { address, network: 'TESTNET', networkPassphrase: PASSPHRASE_TESTNET }
   } catch (e) {
@@ -58,9 +81,8 @@ export async function connect(): Promise<WalletInfo> {
 }
 
 /**
- * No silent auto-reconnect: the kit keeps the address only in memory, and
- * re-fetching on load can pop an unexpected wallet prompt. Users reconnect
- * once per session via the modal.
+ * No silent auto-reconnect: re-fetching on load can pop an unexpected wallet
+ * prompt. Users reconnect once per session via the modal.
  */
 export async function getConnected(): Promise<WalletInfo | null> {
   return null
