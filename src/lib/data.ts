@@ -1,4 +1,4 @@
-export type Screen = 'landing' | 'features' | 'howitworks' | 'hunt' | 'submit' | 'verify' | 'create'
+export type Screen = 'landing' | 'features' | 'howitworks' | 'hunt' | 'submit' | 'verify' | 'create' | 'detail'
 export type Filter = 'all' | 'open' | 'claimed'
 export type Token = 'XLM' | 'USDC'
 
@@ -10,6 +10,9 @@ export interface Bounty {
   title: string
   desc: string
   victim: string
+  victimFull?: string    // alamat victim lengkap (buat link explorer)
+  creator?: string       // alamat pembuat bounty (on-chain)
+  claimer?: string | null // alamat yang berhasil klaim (on-chain), null kalau belum
 }
 
 export interface AppState {
@@ -24,7 +27,7 @@ export interface AppState {
   verified: boolean
   balance: number
   claimed: Record<string, boolean>
-  form: { addr: string; imageId: string; reward: string; token: Token }
+  form: { addr: string; imageId: string; title: string; description: string; reward: string; token: Token }
   toast: string | null
 }
 
@@ -56,6 +59,13 @@ export const INITIAL_STATE: AppState = {
   verified: false,
   balance: 2450,
   claimed: {},
-  form: { addr: '', imageId: '', reward: '', token: 'XLM' },
+  form: {
+    addr: '',
+    imageId: '',
+    title: '',
+    description: '',
+    reward: '',
+    token: 'XLM',
+  },
   toast: null,
 }

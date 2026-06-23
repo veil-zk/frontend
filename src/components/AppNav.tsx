@@ -16,9 +16,10 @@ interface Props {
   address: string | null
   onConnect: () => void
   onDisconnect: () => void
+  onSwitch: () => void
 }
 
-export default function AppNav({ go, huntActive, createActive, balanceStr, connected, connecting, address, onConnect, onDisconnect }: Props) {
+export default function AppNav({ go, huntActive, createActive, balanceStr, connected, connecting, address, onConnect, onDisconnect, onSwitch }: Props) {
   const tabBg  = (on: boolean) => on ? '#1c1c1c' : 'transparent'
   const tabClr = (on: boolean) => on ? '#EDEDED' : '#8A8A8A'
 
@@ -54,15 +55,29 @@ export default function AppNav({ go, huntActive, createActive, balanceStr, conne
 
       {/* wallet badge / connect */}
       {connected ? (
-        <button onClick={onDisconnect} title="Disconnect wallet"
-          className="vbtn group flex items-center gap-2 md:gap-[9px] px-3 md:px-[14px] py-2 md:py-[8px]"
-          style={{ border: '1px solid #242424', borderRadius: 2, background: 'transparent', cursor: 'pointer' }}
+        <div className="vbtn group flex items-center gap-2 md:gap-[9px] px-3 md:px-[14px] py-2 md:py-[8px]"
+          style={{ border: '1px solid #242424', borderRadius: 2, background: 'transparent' }}
         >
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#14B88A', display: 'inline-block', boxShadow: '0 0 0 3px rgba(20,184,138,.12)' }} />
-          <span className="hidden sm:inline" style={{ fontFamily: MONO, fontSize: 12, color: '#EDEDED', letterSpacing: '.02em' }}>{address ? shortAddr(address) : '—'}</span>
+          <button onClick={onSwitch} title="Switch account" aria-label="Switch account"
+            className="vlink hidden sm:inline"
+            style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: MONO, fontSize: 12, color: '#EDEDED', letterSpacing: '.02em', padding: 0 }}
+          >{address ? shortAddr(address) : '—'}</button>
           <span className="hidden sm:inline" style={{ fontFamily: MONO, fontSize: 12, color: '#5A5A5A' }}>·</span>
           <span style={{ fontFamily: MONO, fontSize: 12, color: '#8A8A8A' }}>{balanceStr} XLM</span>
-        </button>
+          <span style={{ width: 1, height: 14, background: '#242424', display: 'inline-block', margin: '0 2px' }} />
+          <button onClick={onDisconnect} title="Disconnect wallet" aria-label="Disconnect wallet"
+            className="vlink flex items-center"
+            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#14B88A', padding: 0, lineHeight: 0 }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 17H7A5 5 0 0 1 7 7" />
+              <path d="M15 7h2a5 5 0 0 1 4 7.54" />
+              <line x1="8" y1="12" x2="12" y2="12" />
+              <line x1="2" y1="2" x2="22" y2="22" />
+            </svg>
+          </button>
+        </div>
       ) : (
         <button onClick={onConnect} disabled={connecting}
           className="vbtn vbtn-ghost flex items-center gap-2 px-3 md:px-[14px] py-2 md:py-[8px]"

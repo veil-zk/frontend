@@ -15,9 +15,10 @@ interface Props {
   onFilter: (f: Filter) => void
   onSearch: (q: string) => void
   onSubmit: (id: string) => void
+  onDetail: (id: string) => void
 }
 
-export default function Hunt({ bounties, openCount, totalPool, filter, search, onFilter, onSearch, onSubmit }: Props) {
+export default function Hunt({ bounties, openCount, totalPool, filter, search, onFilter, onSearch, onSubmit, onDetail }: Props) {
   const filterBg  = (f: Filter) => filter === f ? 'rgba(20,184,138,.1)' : 'transparent'
   const filterClr = (f: Filter) => filter === f ? '#14B88A' : '#8A8A8A'
 
@@ -97,7 +98,7 @@ export default function Hunt({ bounties, openCount, totalPool, filter, search, o
             </div>
             {b.isOpen
               ? <button onClick={() => onSubmit(b.id)} className="vbtn vbtn-ghost" style={{ width: '100%', background: 'transparent', color: '#EDEDED', border: '1px solid #333', padding: '10px', fontFamily: SANS, fontWeight: 500, fontSize: 13, borderRadius: 2, cursor: 'pointer' }}>Submit proof →</button>
-              : <div style={{ fontFamily: MONO, fontSize: 11, color: '#5A5A5A', letterSpacing: '.04em', padding: '10px 0' }}>Claimed · proof verified</div>
+              : <button onClick={() => onDetail(b.id)} className="vbtn vbtn-ghost" style={{ width: '100%', background: 'transparent', color: '#5A8A75', border: '1px solid #242424', padding: '10px', fontFamily: SANS, fontWeight: 500, fontSize: 13, borderRadius: 2, cursor: 'pointer' }}>View details →</button>
             }
           </div>
         ))}

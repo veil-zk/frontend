@@ -49,6 +49,31 @@ export default function Submit({ bounty, fileLoaded, fileName, dragging, go, onP
           </div>
         </div>
 
+        {/* the challenge + how to claim */}
+        <div className="px-5 md:px-8 py-5 md:py-7" style={{ borderBottom: '1px solid #242424' }}>
+          <div style={{ fontFamily: MONO, fontSize: 10, color: '#5A5A5A', letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: 10 }}>The challenge</div>
+          <p style={{ fontFamily: SANS, fontSize: 14, color: '#CDCDCD', margin: '0 0 12px', lineHeight: 1.55 }}>{bounty.desc}</p>
+          {bounty.victimFull && (
+            <div style={{ fontFamily: MONO, fontSize: 12, color: '#8A8A8A', marginBottom: 18 }}>
+              victim contract:{' '}
+              <a href={`https://stellar.expert/explorer/testnet/contract/${bounty.victimFull}`} target="_blank" rel="noreferrer" style={{ color: '#14B88A' }}>{bounty.victim} ↗</a>
+            </div>
+          )}
+
+          <div style={{ fontFamily: MONO, fontSize: 10, color: '#5A5A5A', letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: 12 }}>How to claim</div>
+          <ol style={{ margin: 0, paddingLeft: 18, fontFamily: SANS, fontSize: 13.5, color: '#BDBDBD', lineHeight: 1.7 }}>
+            <li>Read the rule (guest) — it defines what counts as a valid exploit.</li>
+            <li>Poke the victim contract above → find the secret input that breaks it.</li>
+            <li>Generate the proof <b style={{ color: '#EDEDED' }}>on your own machine</b> (your secret never leaves):
+              <div style={{ marginTop: 6, fontFamily: MONO, fontSize: 12, color: '#8A8A8A' }}>
+                • have toolchain → <a href="/api/guest" download style={{ color: '#14B88A' }}>download project</a> → extract → <code style={{ color: '#CDCDCD' }}>cargo run --release --bin host -- &lt;a&gt; &lt;b&gt;</code><br />
+                • no toolchain → <a href="/api/prover" download style={{ color: '#14B88A' }}>download prover</a> (needs Docker)
+              </div>
+            </li>
+            <li>It writes <code style={{ color: '#EDEDED' }}>proof.json</code> → drop it below → claim.</li>
+          </ol>
+        </div>
+
         {/* privacy diagram */}
         <div className="px-5 md:px-8 py-5 md:py-8" style={{ borderBottom: '1px solid #242424' }}>
           {/* desktop: 3-col | mobile: stacked */}
@@ -106,9 +131,9 @@ export default function Submit({ bounty, fileLoaded, fileName, dragging, go, onP
             >
               <div style={{ fontSize: 22, color: '#5A5A5A', marginBottom: 12 }}>⤓</div>
               <div style={{ fontFamily: MONO, fontSize: 14, color: '#EDEDED', marginBottom: 6 }}>
-                drop <span style={{ color: '#14B88A' }}>receipt.bin</span> or click to browse
+                drop <span style={{ color: '#14B88A' }}>proof.json</span> or click to browse
               </div>
-              <div style={{ fontFamily: MONO, fontSize: 11, color: '#5A5A5A' }}>binary RISC Zero receipt · journal + seal</div>
+              <div style={{ fontFamily: MONO, fontSize: 11, color: '#5A5A5A' }}>RISC Zero proof · journal + seal</div>
             </div>
           ) : (
             <div className="flex items-center justify-between px-4 md:px-5 py-4"

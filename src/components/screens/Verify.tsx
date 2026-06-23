@@ -1,6 +1,9 @@
 'use client'
 
 import { Bounty } from '@/lib/data'
+import { explorerTxUrl } from '@/lib/stellar'
+import { shortAddr } from '@/lib/wallet'
+import { RevealEncrypt } from '@/components/RevealBox'
 
 const MONO  = "var(--font-mono,'JetBrains Mono',monospace)"
 const SERIF = "var(--font-serif,'Instrument Serif',serif)"
@@ -18,9 +21,11 @@ interface Props {
   verified: boolean
   balanceStr: string
   backToBounties: () => void
+  hunterAddr?: string | null
+  txHash?: string | null
 }
 
-export default function Verify({ bounty, steps, verified, balanceStr, backToBounties }: Props) {
+export default function Verify({ bounty, steps, verified, balanceStr, backToBounties, hunterAddr, txHash }: Props) {
   return (
     <div className="max-w-[720px] mx-auto px-5 md:px-10 pt-10 md:pt-14 pb-16 md:pb-20">
       {/* stepper */}
@@ -74,7 +79,7 @@ export default function Verify({ bounty, steps, verified, balanceStr, backToBoun
               {([
                 ['Bounty', bounty.title, '#EDEDED'],
                 ['Reward', bounty.reward, '#14B88A'],
-                ['To',     'GD7X…K2P9',  '#EDEDED'],
+                ['To',     hunterAddr ? shortAddr(hunterAddr) : 'GD7X…K2P9',  '#EDEDED'],
               ] as [string, string, string][]).map(([k, v, c]) => (
                 <div key={k} className="flex justify-between py-3" style={{ borderBottom: '1px solid #1c1c1c' }}>
                   <span style={{ fontFamily: MONO, fontSize: 12, color: '#5A5A5A' }}>{k}</span>
@@ -84,7 +89,15 @@ export default function Verify({ bounty, steps, verified, balanceStr, backToBoun
               <div className="flex justify-between py-3">
                 <span style={{ fontFamily: MONO, fontSize: 12, color: '#5A5A5A' }}>Tx</span>
                 <span style={{ fontFamily: MONO, fontSize: 12, color: '#EDEDED' }}>
-                  a3f9…0c21 <span style={{ color: '#14B88A', cursor: 'pointer' }}>view on explorer ↗</span>
+                  {txHash ? (
+                    <>
+                      {shortAddr(txHash)}{' '}
+                      <a href={explorerTxUrl(txHash)} target="_blank" rel="noreferrer"
+                        style={{ color: '#14B88A', cursor: 'pointer' }}>view on explorer ↗</a>
+                    </>
+                  ) : (
+                    <span style={{ color: '#5A5A5A' }}>demo — connect wallet for on-chain tx</span>
+                  )}
                 </span>
               </div>
             </div>
@@ -100,6 +113,8 @@ export default function Verify({ bounty, steps, verified, balanceStr, backToBoun
               </div>
             </div>
           </div>
+
+          <div className="mt-4 md:mt-5"><RevealEncrypt /></div>
 
           <button onClick={backToBounties}
             className="vbtn vbtn-ghost mt-4 md:mt-5"

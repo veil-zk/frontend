@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Screen } from '@/lib/data'
+import { shortAddr } from '@/lib/wallet'
 import CanvasDiamond from '../CanvasDiamond'
 import CanvasBurst from '../CanvasBurst'
 import CanvasDiagGrid from '../CanvasDiagGrid'
@@ -28,9 +29,11 @@ function scrollTo(id: string) {
 interface Props {
   go: (s: Screen) => void
   connectWallet: () => void
+  connected: boolean
+  address: string | null
 }
 
-export default function Landing({ go, connectWallet }: Props) {
+export default function Landing({ go, connectWallet, connected, address }: Props) {
   const [active, setActive] = useState<'features' | 'howitworks' | ''>('')
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -86,13 +89,13 @@ export default function Landing({ go, connectWallet }: Props) {
           </div>
         </div>
 
-        {/* desktop: Connect wallet */}
-        <button onClick={connectWallet}
+        {/* desktop: Connect wallet / connected → enter app */}
+        <button onClick={connected ? () => go('hunt') : connectWallet}
           className="vbtn vbtn-ghost hidden md:inline-flex items-center gap-2"
           style={{ background: 'transparent', color: '#EDEDED', border: '1px solid #333', padding: '10px 18px', fontFamily: MONO, fontSize: 13, letterSpacing: '.02em', borderRadius: 2, cursor: 'pointer' }}
         >
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#14B88A', display: 'inline-block' }} />
-          Connect wallet
+          {connected && address ? shortAddr(address) : 'Connect wallet'}
         </button>
 
         {/* mobile: hamburger menu */}

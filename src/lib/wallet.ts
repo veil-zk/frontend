@@ -3,6 +3,8 @@
 // (the kit's bundled modal is light-themed and clashes with the Veil UI).
 // Loaded via dynamic import so none of its browser-only code runs during SSR.
 
+import { getNetwork, requestAccess, setAllowed, signTransaction } from '@stellar/freighter-api'
+
 export type WalletInfo = {
   address: string
   network: string
@@ -22,6 +24,7 @@ const PASSPHRASE_TESTNET = 'Test SDF Network ; September 2015'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let KitRef: any = null
 let inited = false
+let activeWalletSource: 'kit' | 'freighter' | null = null
 
 async function getKit() {
   const mod = await import('@creit.tech/stellar-wallets-kit')
@@ -73,6 +76,7 @@ export async function connectWith(id: string): Promise<WalletInfo> {
     kit.setWallet(id)
     const { address } = await kit.fetchAddress()
     if (!address) throw new Error('No address returned from wallet.')
+    activeWalletSource = 'kit'
     return { address, network: 'TESTNET', networkPassphrase: PASSPHRASE_TESTNET }
   } catch (e) {
     const msg = e instanceof Error ? e.message : (e as { message?: string })?.message
@@ -88,8 +92,32 @@ export async function getConnected(): Promise<WalletInfo | null> {
   return null
 }
 
+/** Prompt the user to connect with Freighter. */
+export async function connect(): Promise<WalletInfo> {
+  await setAllowed()
+  const access = await requestAccess()
+  if (access.error || !access.publicKey) {
+    throw new Error(typeof access.error === 'string' ? access.error : 'Connection rejected in Freighter.')
+  }
+  const net = await getNetwork()
+  activeWalletSource = 'freighter'
+  return {
+    address: access.publicKey,
+    network: net.network || 'TESTNET',
+    networkPassphrase: net.networkPassphrase || PASSPHRASE_TESTNET,
+  }
+}
+
 /** Sign a transaction XDR with the active wallet; returns signed XDR. */
 export async function sign(xdr: string, networkPassphrase: string): Promise<string> {
+  if (activeWalletSource === 'freighter') {
+    const res = await signTransaction(xdr, { networkPassphrase })
+    if (res.error || !res.signedTxXdr) {
+      throw new Error(typeof res.error === 'string' ? res.error : 'Signing rejected in Freighter.')
+    }
+    return res.signedTxXdr
+  }
+
   const kit = await getKit()
   const res = await kit.signTransaction(xdr, { networkPassphrase })
   if (!res?.signedTxXdr) throw new Error('Signing rejected in wallet.')
@@ -99,6 +127,7 @@ export async function sign(xdr: string, networkPassphrase: string): Promise<stri
 /** Clear the kit's active session. */
 export async function disconnectWallet(): Promise<void> {
   try { if (KitRef) await KitRef.disconnect() } catch { /* noop */ }
+  activeWalletSource = null
 }
 
 /** GD7X…K2P9 style truncation for display. */
