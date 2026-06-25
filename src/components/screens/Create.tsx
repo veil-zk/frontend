@@ -30,7 +30,7 @@ fn main() {
 `
 
 interface Props {
-  form: { addr: string; imageId: string; title: string; description: string; reward: string; token: Token }
+  form: { addr: string; imageId: string; title: string; description: string; reward: string; token: Token; stake: string; revealWindow: string; escapeWindow: string; creatorPubkey: string }
   go: (s: Screen) => void
   onAddrChange: (v: string) => void
   onImageChange: (v: string) => void
@@ -38,11 +38,15 @@ interface Props {
   onDescChange: (v: string) => void
   onRewardChange: (v: string) => void
   onToken: (t: Token) => void
+  onStakeChange: (v: string) => void
+  onRevealWindowChange: (v: string) => void
+  onEscapeWindowChange: (v: string) => void
+  onPubkey: (v: string) => void
   onSubmit: () => void
   busy?: boolean
 }
 
-export default function Create({ form, go: _go, onAddrChange, onImageChange, onTitleChange, onDescChange, onRewardChange, onToken, onSubmit, busy }: Props) {
+export default function Create({ form, go: _go, onAddrChange, onImageChange, onTitleChange, onDescChange, onRewardChange, onToken, onStakeChange, onRevealWindowChange, onEscapeWindowChange, onPubkey, onSubmit, busy }: Props) {
   const tokenBg  = (t: Token) => form.token === t ? '#1c1c1c' : 'transparent'
   const tokenClr = (t: Token) => form.token === t ? '#EDEDED' : '#8A8A8A'
 
@@ -224,7 +228,35 @@ export default function Create({ form, go: _go, onAddrChange, onImageChange, onT
           <div style={{ fontFamily: SANS, fontSize: 11, color: '#5A5A5A', marginTop: 7 }}>locked in escrow until a valid proof is submitted</div>
         </div>
 
-        <div className="mb-7"><RevealKeyGen /></div>
+        {/* Stake + reveal deadline (Level 1.5 economic layer) */}
+        <div className="flex gap-3 mb-7">
+          <div style={{ flex: 1 }}>
+            <label style={{ display: 'block', fontFamily: SANS, fontWeight: 500, fontSize: 13, color: '#EDEDED', marginBottom: 8 }}>
+              Hunter stake (XLM)
+            </label>
+            <input className="vinput w-full" value={form.stake} onChange={e => onStakeChange(e.target.value)} placeholder="100" style={inputSty} />
+            <div style={{ fontFamily: SANS, fontSize: 11, color: '#5A5A5A', marginTop: 7 }}>locked on claim · returned when the hunter reveals the real exploit</div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <label style={{ display: 'block', fontFamily: SANS, fontWeight: 500, fontSize: 13, color: '#EDEDED', marginBottom: 8 }}>
+              Reveal deadline (sec)
+            </label>
+            <input className="vinput w-full" value={form.revealWindow} onChange={e => onRevealWindowChange(e.target.value)} placeholder="3600" style={inputSty} />
+            <div style={{ fontFamily: SANS, fontSize: 11, color: '#5A5A5A', marginTop: 7 }}>after claim · miss it → stake forfeited to you</div>
+          </div>
+        </div>
+
+        <div className="mb-7">
+          <label style={{ display: 'block', fontFamily: SANS, fontWeight: 500, fontSize: 13, color: '#EDEDED', marginBottom: 8 }}>
+            Escape window (sec)
+          </label>
+          <input className="vinput w-full" value={form.escapeWindow} onChange={e => onEscapeWindowChange(e.target.value)} placeholder="1800" style={inputSty} />
+          <div style={{ fontFamily: SANS, fontSize: 11, color: '#5A5A5A', marginTop: 7 }}>
+            anti-griefing: this many seconds before the deadline, if you haven&apos;t confirmed, the hunter may reveal on-chain to reclaim their stake
+          </div>
+        </div>
+
+        <div className="mb-7"><RevealKeyGen onChange={onPubkey} /></div>
 
         <div className="flex gap-3 items-start mb-7 p-4"
           style={{ border: '1px solid #242424', background: '#161616', borderRadius: 2 }}

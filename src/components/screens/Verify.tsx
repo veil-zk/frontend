@@ -114,7 +114,19 @@ export default function Verify({ bounty, steps, verified, balanceStr, backToBoun
             </div>
           </div>
 
-          <div className="mt-4 md:mt-5"><RevealEncrypt /></div>
+          {(bounty.stakeNum ?? 0) > 0 && (
+            <div className="mt-4 md:mt-5 p-4 flex gap-3 items-start"
+              style={{ border: '1px solid #4a3a25', background: '#15110b', borderRadius: 2 }}>
+              <span style={{ fontSize: 14, marginTop: 1 }}>🔒</span>
+              <span style={{ fontFamily: MONO, fontSize: 12, color: '#E0A26A', lineHeight: 1.55 }}>
+                <b style={{ color: '#EDEDED' }}>{bounty.stakeNum!.toLocaleString('en-US')} XLM staked</b> — held by the contract.
+                Reveal the exploit below (encrypt → send to creator) so the creator confirms and your stake is returned.
+                Miss the deadline → stake forfeited to the creator.
+              </span>
+            </div>
+          )}
+
+          <div className="mt-4 md:mt-5"><RevealEncrypt creatorPubkey={bounty.creatorPubkey} /></div>
 
           <button onClick={backToBounties}
             className="vbtn vbtn-ghost mt-4 md:mt-5"

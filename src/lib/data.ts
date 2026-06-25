@@ -13,6 +13,15 @@ export interface Bounty {
   victimFull?: string    // alamat victim lengkap (buat link explorer)
   creator?: string       // alamat pembuat bounty (on-chain)
   claimer?: string | null // alamat yang berhasil klaim (on-chain), null kalau belum
+  // --- Level 1.5 + stake (on-chain) ---
+  creatorPubkey?: string // X25519 pubkey base64 — hunter enkripsi reveal ke sini
+  stakeNum?: number      // stake XLM yg dikunci hunter saat claim
+  revealWindow?: number  // detik utk reveal setelah claim
+  escapeWindow?: number  // detik sebelum deadline saat escape hatch on-chain kebuka
+  fingerprintHex?: string // sidik jari sha256(a,b,salt) dari journal pemenang
+  claimTime?: number     // unix ts saat claim
+  revealed?: boolean     // creator sudah konfirmasi reveal valid → stake balik
+  forfeited?: boolean    // deadline lewat → stake hangus ke creator
 }
 
 export interface AppState {
@@ -27,7 +36,7 @@ export interface AppState {
   verified: boolean
   balance: number
   claimed: Record<string, boolean>
-  form: { addr: string; imageId: string; title: string; description: string; reward: string; token: Token }
+  form: { addr: string; imageId: string; title: string; description: string; reward: string; token: Token; stake: string; revealWindow: string; escapeWindow: string; creatorPubkey: string }
   toast: string | null
 }
 
@@ -66,6 +75,10 @@ export const INITIAL_STATE: AppState = {
     description: '',
     reward: '',
     token: 'XLM',
+    stake: '',
+    revealWindow: '3600',  // detik; default 1 jam
+    escapeWindow: '1800',  // detik; escape hatch kebuka 30 menit sebelum deadline
+    creatorPubkey: '',
   },
   toast: null,
 }

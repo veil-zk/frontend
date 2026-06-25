@@ -121,10 +121,25 @@ export interface OnChainBounty {
   amount: bigint
   victim_id: string
   image_id: Uint8Array
+  creator_pubkey: Uint8Array
   title?: string
   description?: string
+  stake_amount: bigint
+  reveal_window: bigint
+  escape_window: bigint
   claimed: boolean
   claimer?: string | null
+  fingerprint: Uint8Array
+  claim_time: bigint
+  revealed: boolean
+  forfeited: boolean
+}
+
+/** Uint8Array → base64 (buat creator_pubkey yg dipakai reveal.ts). */
+function bytesToB64(b: Uint8Array): string {
+  let s = ''
+  for (let i = 0; i < b.length; i++) s += String.fromCharCode(b[i])
+  return btoa(s)
 }
 
 /** Jumlah bounty di registry. */
@@ -140,17 +155,35 @@ export async function getBounty(id: number): Promise<OnChainBounty> {
   ])) as OnChainBounty
 }
 
-/** create_bounty(creator, token, victim_id, image_id, journal_digest) → bounty_id */
+/** base64 → Uint8Array (creator pubkey dari form). */
+function b64ToBytes(s: string): Uint8Array {
+  const bin = atob(s.trim())
+  const out = new Uint8Array(bin.length)
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i)
+  return out
+}
+
+/**
+ * create_bounty(creator, token, victim_id, image_id, creator_pubkey, title,
+ *   description, stake_amount, reveal_window, expiry) → bounty_id
+ */
 export async function createBounty(
   creator: string,
   victimId: string,
   imageIdHex: string,
+  creatorPubkeyB64: string,
   title: string,
   description: string,
+  stakeXlm: number,
+  revealWindowSecs: number,
+  escapeWindowSecs: number,
   sign: SignFn,
   expiry = 0,
 ): Promise<number> {
   if (!CONTRACTS_CONFIGURED) throw new Error('Registry belum dikonfigurasi (NEXT_PUBLIC_VERIFIER_ID).')
+  const pub = b64ToBytes(creatorPubkeyB64)
+  if (pub.length !== 32) throw new Error('Public key creator tidak valid (harus 32 byte / base64).')
+  const stakeI128 = BigInt(Math.round(stakeXlm * 1e7))
   const { result } = await invoke(
     VERIFIER_ID,
     'create_bounty',
@@ -159,14 +192,54 @@ export async function createBounty(
       new Address(TOKEN_ID).toScVal(),
       new Address(victimId).toScVal(),
       nativeToScVal(hexToBytes(imageIdHex), { type: 'bytes' }),
+      nativeToScVal(pub, { type: 'bytes' }),
       nativeToScVal(title, { type: 'string' }),
       nativeToScVal(description, { type: 'string' }),
+      nativeToScVal(stakeI128, { type: 'i128' }),
+      nativeToScVal(BigInt(revealWindowSecs), { type: 'u64' }),
+      nativeToScVal(BigInt(escapeWindowSecs), { type: 'u64' }),
       nativeToScVal(BigInt(expiry), { type: 'u64' }),
     ],
     creator,
     sign,
   )
   return result as number
+}
+
+/** prove_reveal(bounty_id, a, b, salt) — escape hatch: hunter reveal on-chain → stake balik. */
+export async function proveReveal(
+  bountyId: number,
+  caller: string,
+  a: string,
+  b: string,
+  saltHex: string,
+  sign: SignFn,
+) {
+  if (!CONTRACTS_CONFIGURED) throw new Error('Registry belum dikonfigurasi (NEXT_PUBLIC_VERIFIER_ID).')
+  return invoke(
+    VERIFIER_ID,
+    'prove_reveal',
+    [
+      nativeToScVal(bountyId, { type: 'u32' }),
+      nativeToScVal(BigInt(a), { type: 'u128' }),
+      nativeToScVal(BigInt(b), { type: 'u128' }),
+      nativeToScVal(hexToBytes(saltHex), { type: 'bytes' }),
+    ],
+    caller,
+    sign,
+  )
+}
+
+/** confirm_reveal(bounty_id) — creator konfirmasi reveal valid → stake balik ke hunter. */
+export async function confirmReveal(bountyId: number, creator: string, sign: SignFn) {
+  if (!CONTRACTS_CONFIGURED) throw new Error('Registry belum dikonfigurasi (NEXT_PUBLIC_VERIFIER_ID).')
+  return invoke(VERIFIER_ID, 'confirm_reveal', [nativeToScVal(bountyId, { type: 'u32' })], creator, sign)
+}
+
+/** forfeit_stake(bounty_id) — deadline reveal lewat → stake hangus ke creator. */
+export async function forfeitStake(bountyId: number, caller: string, sign: SignFn) {
+  if (!CONTRACTS_CONFIGURED) throw new Error('Registry belum dikonfigurasi (NEXT_PUBLIC_VERIFIER_ID).')
+  return invoke(VERIFIER_ID, 'forfeit_stake', [nativeToScVal(bountyId, { type: 'u32' })], caller, sign)
 }
 
 /** withdraw(bounty_id) — creator tarik balik hadiah setelah bounty expired. */
@@ -214,6 +287,8 @@ export async function listBounties(): Promise<Bounty[]> {
       desc: 'Submit a valid RISC Zero proof to claim the reward.',
     }
     const rewardNum = Number(b.amount) / 1e7
+    const fpHex = b.fingerprint ? toHex(new Uint8Array(b.fingerprint as Uint8Array)) : ''
+    const isZeroFp = !fpHex || /^0+$/.test(fpHex)
     out.push({
       id: String(i),
       status: b.claimed ? 'claimed' : 'open',
@@ -226,6 +301,15 @@ export async function listBounties(): Promise<Bounty[]> {
       victimFull: b.victim_id,
       creator: b.creator,
       claimer: b.claimer ?? null,
+      // --- Level 1.5 + stake ---
+      creatorPubkey: b.creator_pubkey ? bytesToB64(new Uint8Array(b.creator_pubkey as Uint8Array)) : undefined,
+      stakeNum: b.stake_amount != null ? Number(b.stake_amount) / 1e7 : undefined,
+      revealWindow: b.reveal_window != null ? Number(b.reveal_window) : undefined,
+      escapeWindow: b.escape_window != null ? Number(b.escape_window) : undefined,
+      fingerprintHex: isZeroFp ? undefined : fpHex,
+      claimTime: b.claim_time != null ? Number(b.claim_time) : undefined,
+      revealed: b.revealed ?? false,
+      forfeited: b.forfeited ?? false,
     })
   }
   return out

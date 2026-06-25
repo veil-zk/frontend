@@ -16,7 +16,8 @@ import IntroOverlay from './IntroOverlay'
 import WalletModal from './WalletModal'
 import { useWallet } from '@/hooks/useWallet'
 import { shortAddr } from '@/lib/wallet'
-import { CONTRACTS_CONFIGURED, claim, listBounties, createBounty, fundBounty, hexToBytes } from '@/lib/stellar'
+import { CONTRACTS_CONFIGURED, claim, listBounties, createBounty, fundBounty, confirmReveal, forfeitStake, proveReveal, hexToBytes } from '@/lib/stellar'
+import type { Reveal } from '@/lib/reveal'
 
 export default function VeilApp() {
   const [s, setS] = useState<AppState>(INITIAL_STATE)
@@ -161,6 +162,9 @@ export default function VeilApp() {
     if (!f.addr || !f.imageId || !f.reward || !f.description) {
       showToast('Fill all fields (contract, ImageID, description, reward)'); return
     }
+    if (!f.creatorPubkey) {
+      showToast('Generate a reveal key first (so hunters can send you the exploit)', 4500); return
+    }
     // belum connect → langsung munculin popup Freighter, lalu lanjut.
     let addr = wallet.address
     if (!addr) {
@@ -170,7 +174,14 @@ export default function VeilApp() {
     setBusy(true)
     try {
       showToast('Opening bounty… approve 2 signatures in Freighter', 8000)
-      const id = await createBounty(addr, f.addr, f.imageId, f.title || 'ZK Bounty', f.description, wallet.sign)
+      const stakeXlm = Number(f.stake) || 0
+      const revealWindow = Number(f.revealWindow) || 0
+      const escapeWindow = Number(f.escapeWindow) || 0
+      const id = await createBounty(
+        addr, f.addr, f.imageId, f.creatorPubkey,
+        f.title || 'ZK Bounty', f.description,
+        stakeXlm, revealWindow, escapeWindow, wallet.sign,
+      )
       const amount = BigInt(Math.round(Number(f.reward) * 1e7))
       await fundBounty(id, addr, amount, wallet.sign)
       await loadBounties()
@@ -181,6 +192,51 @@ export default function VeilApp() {
       showToast(e instanceof Error ? e.message : 'Open bounty failed', 5000)
     } finally {
       setBusy(false)
+    }
+  }
+
+  // Creator konfirmasi reveal valid → stake balik ke hunter.
+  const onConfirmReveal = async (bountyId: string) => {
+    let addr = wallet.address
+    if (!addr) {
+      try { addr = (await wallet.connect()).address } catch { showToast('Connect wallet first'); return }
+    }
+    try {
+      await confirmReveal(Number(bountyId), addr, wallet.sign)
+      await loadBounties()
+      showToast('Reveal confirmed — stake released to hunter', 4200)
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Confirm failed', 5000)
+    }
+  }
+
+  // Deadline reveal lewat → stake hangus ke creator.
+  const onForfeit = async (bountyId: string) => {
+    let addr = wallet.address
+    if (!addr) {
+      try { addr = (await wallet.connect()).address } catch { showToast('Connect wallet first'); return }
+    }
+    try {
+      await forfeitStake(Number(bountyId), addr, wallet.sign)
+      await loadBounties()
+      showToast('Deadline passed — stake forfeited to creator', 4200)
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Forfeit failed', 5000)
+    }
+  }
+
+  // Escape hatch: hunter reveal on-chain (publik) → stake balik (kalau creator ngeyel).
+  const onReclaimStake = async (bountyId: string, reveal: Reveal) => {
+    let addr = wallet.address
+    if (!addr) {
+      try { addr = (await wallet.connect()).address } catch { showToast('Connect wallet first'); return }
+    }
+    try {
+      await proveReveal(Number(bountyId), addr, reveal.a, reveal.b, reveal.salt, wallet.sign)
+      await loadBounties()
+      showToast('Revealed on-chain — stake reclaimed', 4200)
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Reclaim failed', 5000)
     }
   }
 
@@ -290,7 +346,14 @@ export default function VeilApp() {
           )}
 
           {s.screen === 'detail' && (
-            <Detail bounty={activeBounty} backToBounties={backToBounties} />
+            <Detail
+              bounty={activeBounty}
+              backToBounties={backToBounties}
+              walletAddr={wallet.address}
+              onConfirmReveal={() => onConfirmReveal(activeBounty.id)}
+              onForfeit={() => onForfeit(activeBounty.id)}
+              onReclaim={(reveal) => onReclaimStake(activeBounty.id, reveal)}
+            />
           )}
 
           {s.screen === 'create' && (
@@ -303,6 +366,10 @@ export default function VeilApp() {
               onDescChange={(v: string) => setS(prev => ({ ...prev, form: { ...prev.form, description: v } }))}
               onRewardChange={(v: string) => setS(prev => ({ ...prev, form: { ...prev.form, reward: v } }))}
               onToken={(t: Token) => setS(prev => ({ ...prev, form: { ...prev.form, token: t } }))}
+              onStakeChange={(v: string) => setS(prev => ({ ...prev, form: { ...prev.form, stake: v } }))}
+              onRevealWindowChange={(v: string) => setS(prev => ({ ...prev, form: { ...prev.form, revealWindow: v } }))}
+              onEscapeWindowChange={(v: string) => setS(prev => ({ ...prev, form: { ...prev.form, escapeWindow: v } }))}
+              onPubkey={(v: string) => setS(prev => ({ ...prev, form: { ...prev.form, creatorPubkey: v } }))}
               onSubmit={submitCreate}
               busy={busy}
             />
