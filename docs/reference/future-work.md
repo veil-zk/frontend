@@ -39,6 +39,8 @@ A stronger version of 1a: instead of a live cross-contract read at claim time, t
 
 Some exploits need a **sequence of transactions**, not a single call. Recursive proof composition lets the guest prove a whole execution trace (step 1 → step 2 → … → invariant broken), turning a multi-step attack into one succinct proof.
 
+*Grounded in:* proof recursion and folding schemes (e.g. Nova, STARK recursion) are production cryptography today.
+
 ### 1d. Simulate the contract inside the zkVM *(research)*
 
 Interactive bugs — **reentrancy**, call-ordering, multi-step sequences — aren't a single pure function; they're an *interaction* that mutates state mid-execution. To prove them, the guest must **execute a model of the contract** and run the attack against it. Two flavours:
@@ -101,6 +103,8 @@ Heavy proofs (Level 2, in-zkVM simulation) need more compute than a laptop. A ma
 ### 3c. Private / decentralized proving network
 
 For hunters without proving hardware, a **proving marketplace running under TEEs or MPC** could generate proofs **without ever seeing the secret** — bridging the privacy trade-off of a managed prover (§3b) with the accessibility of not needing local hardware.
+
+*Grounded in:* TEE- and MPC-based proving services already exist; the novelty is wiring one so the prover never learns the hunter's input.
 
 ### 3d. Reproducible compile service
 
