@@ -29,5 +29,6 @@
 
 * [Deployments](reference/deployments.md)
 * [Limitations & what's mocked](reference/limitations.md)
+* [Roadmap](reference/roadmap.md)
 * [Future work](reference/future-work.md)
 * [Glossary](reference/glossary.md)
