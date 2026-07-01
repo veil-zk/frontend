@@ -4,7 +4,7 @@ Everything to see Veil in action — the demo, the source, and the live contract
 
 ## Demo
 
-* 🎥 **Demo video (2–3 min)** — [youtube.com/watch?v=bL5tQSPMIWg](https://www.youtube.com/watch?v=bL5tQSPMIWg)
+* 🎥 **Demo video (2–3 min)** — [youtu.be/bL5tQSPMIWg](https://youtu.be/bL5tQSPMIWg)
 * 📖 **Documentation (this site)** — [veil-3.gitbook.io/veil-docs-1](https://veil-3.gitbook.io/veil-docs-1/)
 
 ## Source code

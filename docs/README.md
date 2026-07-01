@@ -10,7 +10,7 @@ description: The exploit stays behind the veil.
 
 Built for the **Real-World ZK on Stellar** hackathon (DoraHacks). Zero-knowledge is not a garnish here — it is the load-bearing wall. Remove it and the entire idea collapses.
 
-**🎥 [Watch the demo](https://www.youtube.com/watch?v=bL5tQSPMIWg)** · **💻 [Source](https://github.com/veil-zk)** · **🔍 [Live on testnet](reference/resources.md)** · full link list in [Resources](reference/resources.md).
+**🎥 [Watch the demo](https://youtu.be/bL5tQSPMIWg)** · **💻 [Source](https://github.com/veil-zk)** · **🔍 [Live on testnet](reference/resources.md)** · full link list in [Resources](reference/resources.md).
 
 ---
 
