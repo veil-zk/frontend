@@ -1,6 +1,7 @@
 # Table of contents
 
 * [Veil — Trustless Proof-of-Exploit Bug Bounty](README.md)
+* [Resources & links (demo, code, live contracts)](reference/resources.md)
 
 ## Overview
 
