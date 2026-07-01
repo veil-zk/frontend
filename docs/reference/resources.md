@@ -5,6 +5,7 @@ Everything to see Veil in action — the demo, the source, and the live contract
 ## Demo
 
 * 🎥 **Demo video (2–3 min)** — [youtu.be/bL5tQSPMIWg](https://youtu.be/bL5tQSPMIWg)
+* 🌐 **Live app (Stellar testnet)** — [veil-gamma-five.vercel.app](https://veil-gamma-five.vercel.app)
 * 📖 **Documentation (this site)** — [veil-3.gitbook.io/veil-docs-1](https://veil-3.gitbook.io/veil-docs-1/)
 
 ## Source code
